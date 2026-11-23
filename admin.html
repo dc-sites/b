@@ -66,7 +66,7 @@
     .modal { position: fixed; inset: 0; z-index: 999; background: rgba(0, 0, 0, 0.88); backdrop-filter: blur(12px); display: none; align-items: center; justify-content: center; padding: 1.5rem; }
     .modal.open { display: flex; }
     .modal-content { width: 100%; max-width: 960px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85); }
-    .player-box { position: relative; background: #000; aspect-ratio: 16 / 9; user-select: none; }
+    .player-box { position: relative; background: #000; aspect-ratio: 16 / 9; user-select: none; overflow: hidden; }
     .player-box video { width: 100%; height: 100%; display: block; }
     .modal-info { padding: 1.5rem; display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
     .modal-info h2 { font-size: 1.25rem; margin: 0.25rem 0 0.5rem; }
@@ -89,35 +89,25 @@
       display: none;
     }
 
-    /* Custom Controls */
+    /* Custom Controls (Simplified) */
     .custom-controls {
       position: absolute; left: 0; right: 0; bottom: 0;
       padding: 12px 16px 14px;
       background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
       color: #fff; z-index: 20;
-      transition: opacity 0.3s ease;
     }
     .progress-container { padding: 6px 0; cursor: pointer; }
-    .progress-bar { position: relative; height: 4px; background: rgba(255,255,255,0.25); border-radius: 2px; transition: height 0.15s; }
-    .progress-container:hover .progress-bar { height: 6px; }
+    .progress-bar { position: relative; height: 4px; background: rgba(255,255,255,0.25); border-radius: 2px; }
     .progress-buffered { position: absolute; top: 0; left: 0; height: 100%; background: rgba(255,255,255,0.35); border-radius: 2px; width: 0; }
     .progress-filled { position: absolute; top: 0; left: 0; height: 100%; background: var(--accent); border-radius: 2px; width: 0; }
-    .progress-thumb { position: absolute; top: 50%; width: 14px; height: 14px; background: var(--accent); border-radius: 50%; transform: translate(-50%, -50%); opacity: 0; transition: opacity 0.15s; box-shadow: 0 0 8px rgba(225, 29, 72, 0.6); }
-    .progress-container:hover .progress-thumb { opacity: 1; }
     .controls-row { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
     .ctrl-btn { background: transparent; border: none; color: #fff; cursor: pointer; padding: 6px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: 0.15s; }
     .ctrl-btn:hover { background: rgba(255,255,255,0.15); }
-    .volume-wrap { display: flex; align-items: center; gap: 6px; }
     .volume-slider { width: 80px; height: 4px; -webkit-appearance: none; appearance: none; background: rgba(255,255,255,0.3); border-radius: 2px; outline: none; cursor: pointer; }
     .volume-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; background: #fff; border-radius: 50%; cursor: pointer; }
     .volume-slider::-moz-range-thumb { width: 12px; height: 12px; background: #fff; border-radius: 50%; cursor: pointer; border: none; }
     .time-display { font-size: 0.82rem; color: rgba(255,255,255,0.85); font-variant-numeric: tabular-nums; }
     .controls-spacer { flex: 1; }
-    .center-play { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; z-index: 18; pointer-events: none; }
-    .center-play-circle { width: 70px; height: 70px; border-radius: 50%; background: rgba(225, 29, 72, 0.9); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 8px 30px rgba(225, 29, 72, 0.5); backdrop-filter: blur(8px); }
-    .player-loader { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; z-index: 17; pointer-events: none; }
-    .loader-ring { width: 50px; height: 50px; border: 3px solid rgba(255,255,255,0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
 
     @media (max-width: 640px) {
       .volume-slider { width: 50px; }
@@ -257,15 +247,15 @@
         <video id="theaterVideo" playsinline preload="metadata"></video>
         <div class="watermark" id="watermark">asianx.site</div>
         <div class="screenshot-guard" id="screenshotGuard"></div>
-        <!-- Mini custom controls for preview -->
-        <div class="custom-controls" id="customControls" style="opacity:1;">
-          <div class="progress-container">
+        <div class="custom-controls">
+          <div class="progress-container" id="progressContainer">
             <div class="progress-bar" id="progressBar">
               <div class="progress-filled" id="progressFilled"></div>
             </div>
           </div>
           <div class="controls-row">
             <button class="ctrl-btn" id="playPauseBtn">▶</button>
+            <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="1" />
             <div class="time-display"><span id="currentTime">0:00</span> / <span id="duration">0:00</span></div>
             <div class="controls-spacer"></div>
             <button class="ctrl-btn" id="pipBtn" title="PiP">
@@ -504,13 +494,15 @@
       }
     });
 
-    // ============ Preview Modal ============
+    // ============ Preview Modal (Optimized) ============
     const modal = document.getElementById("playerModal");
     const previewPlayerBox = document.getElementById("previewPlayerBox");
     const theaterVideo = document.getElementById("theaterVideo");
     const watermark = document.getElementById("watermark");
     const screenshotGuard = document.getElementById("screenshotGuard");
     const playPauseBtn = document.getElementById("playPauseBtn");
+    const volumeSlider = document.getElementById("volumeSlider");
+    const progressContainer = document.getElementById("progressContainer");
     const progressBar = document.getElementById("progressBar");
     const progressFilled = document.getElementById("progressFilled");
     const currentTimeEl = document.getElementById("currentTime");
@@ -569,15 +561,28 @@
 
     theaterVideo.addEventListener("play", () => playPauseBtn.textContent = "❚❚");
     theaterVideo.addEventListener("pause", () => playPauseBtn.textContent = "▶");
+
+    // Throttled time update
+    let lastTimeUpdate = 0;
     theaterVideo.addEventListener("timeupdate", () => {
+      const now = Date.now();
+      if (now - lastTimeUpdate < 200) return;
+      lastTimeUpdate = now;
       const pct = (theaterVideo.currentTime / theaterVideo.duration) * 100 || 0;
       progressFilled.style.width = pct + "%";
       currentTimeEl.textContent = formatTime(theaterVideo.currentTime);
     });
+
     theaterVideo.addEventListener("loadedmetadata", () => durationEl.textContent = formatTime(theaterVideo.duration));
-    progressBar.addEventListener("click", (e) => {
+
+    progressContainer.addEventListener("click", (e) => {
       const rect = progressBar.getBoundingClientRect();
       theaterVideo.currentTime = ((e.clientX - rect.left) / rect.width) * theaterVideo.duration;
+    });
+
+    volumeSlider.addEventListener("input", (e) => {
+      theaterVideo.volume = e.target.value;
+      theaterVideo.muted = e.target.value == 0;
     });
 
     pipBtn.addEventListener("click", async () => {
@@ -587,9 +592,21 @@
       } catch (err) { console.warn(err); }
     });
 
-    fullscreenBtn.addEventListener("click", () => {
-      if (document.fullscreenElement) document.exitFullscreen();
-      else previewPlayerBox.requestFullscreen().catch(err => console.warn(err));
+    // Fullscreen with Auto-Landscape on Mobile
+    fullscreenBtn.addEventListener("click", async () => {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+        if (screen.orientation && screen.orientation.unlock) {
+          screen.orientation.unlock();
+        }
+      } else {
+        try {
+          if (screen.orientation && screen.orientation.lock) {
+            try { await screen.orientation.lock("landscape"); } catch (e) { console.warn(e); }
+          }
+          await previewPlayerBox.requestFullscreen();
+        } catch (err) { console.warn(err); }
+      }
     });
 
     function openPreview(video) {
@@ -609,7 +626,10 @@
       theaterVideo.load();
       modal.classList.remove("open");
       if (document.pictureInPictureElement) document.exitPictureInPicture().catch(() => {});
-      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+        if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
+      }
     }
 
     document.getElementById("closeModalBtn").addEventListener("click", closePreview);
