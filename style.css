@@ -422,115 +422,207 @@ h1, h2, h3, .brand-logo {
   .hero { padding: 2rem 1.5rem; }
 }
 
-/* Add these styles to your existing style.css */
-
-/* Watermark Overlay - Moving Animation */
-.watermark-overlay {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 10;
+/* ============ Professional Player Styles ============ */
+.player-box {
+  position: relative;
+  background: #000;
+  aspect-ratio: 16 / 9;
+  user-select: none;
   overflow: hidden;
 }
 
-.watermark-text {
+.player-box video {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Watermark */
+.watermark {
   position: absolute;
-  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 1.3rem;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.15);
-  text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  white-space: nowrap;
-  animation: watermarkMove 20s infinite linear;
+  font-family: 'Space Grotesk', sans-serif;
+  pointer-events: none;
+  z-index: 15;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.7), 0 0 20px rgba(0,0,0,0.5);
+  transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
+  letter-spacing: 0.02em;
 }
 
-@keyframes watermarkMove {
-  0% {
-    top: 10%;
-    left: 10%;
-    transform: rotate(-15deg);
-  }
-  25% {
-    top: 60%;
-    left: 70%;
-    transform: rotate(10deg);
-  }
-  50% {
-    top: 30%;
-    left: 40%;
-    transform: rotate(-5deg);
-  }
-  75% {
-    top: 70%;
-    left: 20%;
-    transform: rotate(15deg);
-  }
-  100% {
-    top: 10%;
-    left: 10%;
-    transform: rotate(-15deg);
-  }
-}
-
-/* Screenshot Protection Overlay */
-.screenshot-protection {
+/* Screenshot Guard */
+.screenshot-guard {
   position: absolute;
   inset: 0;
-  z-index: 15;
   pointer-events: none;
+  z-index: 14;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255,255,255,0.015) 2px,
+    rgba(255,255,255,0.015) 4px
+  );
   display: none;
 }
 
-.screenshot-protection.active {
-  display: block;
-  background: transparent;
-  /* This creates an invisible layer that blocks some screenshot tools */
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
+.player-box.protected video {
+  -webkit-user-drag: none;
+  user-select: none;
 }
 
-/* Custom Player Controls */
+/* Custom Controls */
 .custom-controls {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  left: 0; right: 0; bottom: 0;
+  padding: 12px 16px 14px;
+  background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+  color: #fff;
   z-index: 20;
-  display: flex;
-  gap: 8px;
+  transition: opacity 0.3s ease;
+}
+
+.progress-container { padding: 6px 0; cursor: pointer; }
+.progress-bar {
+  position: relative;
+  height: 4px;
+  background: rgba(255,255,255,0.25);
+  border-radius: 2px;
+  transition: height 0.15s;
+}
+.progress-container:hover .progress-bar { height: 6px; }
+
+.progress-buffered {
+  position: absolute; top: 0; left: 0; height: 100%;
+  background: rgba(255,255,255,0.35);
+  border-radius: 2px;
+  width: 0;
+}
+
+.progress-filled {
+  position: absolute; top: 0; left: 0; height: 100%;
+  background: var(--accent, #e11d48);
+  border-radius: 2px;
+  width: 0;
+}
+
+.progress-thumb {
+  position: absolute; top: 50%;
+  width: 14px; height: 14px;
+  background: var(--accent, #e11d48);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
   opacity: 0;
-  transition: opacity 0.3s;
+  transition: opacity 0.15s;
+  box-shadow: 0 0 8px rgba(225, 29, 72, 0.6);
+}
+.progress-container:hover .progress-thumb { opacity: 1; }
+
+.controls-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
 }
 
-.player-box:hover .custom-controls {
-  opacity: 1;
-}
-
-.control-btn {
-  background: rgba(0, 0, 0, 0.7);
+.ctrl-btn {
+  background: transparent;
   border: none;
-  color: white;
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
+  color: #fff;
   cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  transition: 0.15s;
+}
+.ctrl-btn:hover { background: rgba(255,255,255,0.15); }
+
+.volume-wrap { display: flex; align-items: center; gap: 6px; }
+.volume-slider {
+  width: 80px; height: 4px;
+  -webkit-appearance: none; appearance: none;
+  background: rgba(255,255,255,0.3);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px; height: 12px;
+  background: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.volume-slider::-moz-range-thumb {
+  width: 12px; height: 12px;
+  background: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
 }
 
-.control-btn:hover {
-  background: rgba(139, 92, 246, 0.9);
-  transform: scale(1.1);
+.time-display {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.85);
+  font-variant-numeric: tabular-nums;
 }
 
-/* Ensure watermark is visible in fullscreen */
-.player-box:fullscreen .watermark-overlay,
-.player-box:-webkit-full-screen .watermark-overlay {
-  display: block;
+.controls-spacer { flex: 1; }
+
+/* Center Play Button */
+.center-play {
+  position: absolute; inset: 0;
+  display: none;
+  align-items: center; justify-content: center;
+  z-index: 18;
+  pointer-events: none;
+}
+.center-play-circle {
+  width: 70px; height: 70px;
+  border-radius: 50%;
+  background: rgba(225, 29, 72, 0.9);
+  color: #fff;
+  display: flex;
+  align-items: center; justify-content: center;
+  font-size: 1.8rem;
+  box-shadow: 0 8px 30px rgba(225, 29, 72, 0.5);
+  backdrop-filter: blur(8px);
 }
 
-.player-box:fullscreen .watermark-text,
-.player-box:-webkit-full-screen .watermark-text {
-  font-size: 2.5rem;
+/* Loading Spinner */
+.player-loader {
+  position: absolute; inset: 0;
+  display: none;
+  align-items: center; justify-content: center;
+  z-index: 17;
+  pointer-events: none;
+}
+.loader-ring {
+  width: 50px; height: 50px;
+  border: 3px solid rgba(255,255,255,0.2);
+  border-top-color: var(--accent, #e11d48);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Fullscreen adjustments */
+.player-box:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  aspect-ratio: auto;
+}
+.player-box:fullscreen .watermark { font-size: 2rem; }
+.player-box:fullscreen .custom-controls { padding: 16px 24px 20px; }
+.player-box:fullscreen .progress-bar { height: 5px; }
+.player-box:fullscreen .ctrl-btn svg { width: 24px; height: 24px; }
+
+@media (max-width: 640px) {
+  .volume-slider { width: 50px; }
+  .time-display { font-size: 0.75rem; }
+  .watermark { font-size: 1rem; }
 }
