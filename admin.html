@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Asian Hub — Stream Exclusive Collections</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body oncontextmenu="return false;">
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <a href="index.html" class="brand-logo">ASIAN <span>HUB</span></a>
+    <div class="nav-actions">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search titles..." />
+      <button id="themeToggle" class="icon-btn" title="Toggle Theme">☀️</button>
+      <a href="admin.html" class="icon-btn">Admin</a>
+    </div>
+  </nav>
+
+  <!-- Hero Spotlight -->
+  <section class="hero" id="heroSection">
+    <span class="hero-badge" id="heroCollection">Featured Premiere</span>
+    <h1 id="heroTitle">Welcome to Asian Hub</h1>
+    <p id="heroDesc">Curated HD cinema and exclusive video collections streaming seamlessly.</p>
+    <button class="btn-primary" id="heroPlayBtn" style="display:none;">▶ Watch Now</button>
+  </section>
+
+  <!-- Collection Filter Pills -->
+  <div class="collections-bar" id="collectionsBar">
+    <button class="pill active" data-collection="ALL">All Videos</button>
+  </div>
+
+  <!-- Main Video Grid -->
+  <main class="container">
+    <div class="section-header">
+      <h2 id="gridHeading">Latest Releases</h2>
+      <span id="videoCount" style="color: var(--text-secondary); font-size: 0.875rem;"></span>
+    </div>
+
+    <div class="video-grid" id="videoGrid"></div>
+
+    <div class="load-more-wrap">
+      <button id="seeMoreBtn" class="icon-btn" style="padding: 0.75rem 2rem; display: none;">
+        See More Videos ↓
+      </button>
+    </div>
+  </main>
+
+  <!-- Anti-Download Theater Modal -->
+  <div class="modal" id="playerModal">
+    <div class="modal-content">
+      <div class="player-box" oncontextmenu="return false;">
+        <video
+          id="theaterVideo"
+          controls
+          controlsList="nodownload noplaybackrate"
+          disablePictureInPicture
+          playsinline
+          oncontextmenu="return false;"
+          ondragstart="return false;"
+          onselectstart="return false;"
+        ></video>
+      </div>
+      <div class="modal-info">
+        <div>
+          <span class="card-tag" id="modalCollection">Collection</span>
+          <h2 id="modalTitle" style="margin: 0.25rem 0 0.5rem;">Video Title</h2>
+          <p id="modalDesc" style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;"></p>
+        </div>
+        <button class="icon-btn" id="closeModalBtn">✕ Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-analytics.js";
+    import {
+      getFirestore,
+      collection,
+      getDocs,
+      query,
+      orderBy,
+      limit,
+      startAfter,
+      where
+    } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+    const WORKER_STREAM_URL = "https://asian.dunethjayasinghe9.workers.dev";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAEdEpK8B4WGR0iYZL5GKR20Q5p1MCU2l4",
+      authDomain: "asianhub-9f45c.firebaseapp.com",
+      projectId: "asianhub-9f45c",
+      storageBucket: "asianhub-9f45c.firebasestorage.app",
+      messagingSenderId: "297225882992",
+      appId: "1:297225882992:web:59a3b7212c3ca2cdd1d3b5",
+      measurementId: "G-8RYD4W7YBB"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    getAnalytics(app);
+    const db = getFirestore(app);
+
+    // 1. Dark / Light Mode Logic
+    const themeToggle = document.getElementById("themeToggle");
+    const savedTheme = localStorage.getItem("asianhub_theme") || "dark";
+    document.documentElement.setAttribute("data-theme", savedTheme);
+    themeToggle.textContent = savedTheme === "dark" ? "☀️" : "🌙";
+
+    themeToggle.addEventListener("click", () => {
+      const current = document.documentElement.getAttribute("data-theme");
+      const next = current === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("asianhub_theme", next);
+      themeToggle.textContent = next === "dark" ? "☀️" : "🌙";
+    });
+
+    // 2. State Variables
+    const PAGE_SIZE = 8;
+    let lastVisibleDoc = null;
+    let activeCollection = "ALL";
+    let loadedVideos = [];
+
+    const videoGrid = document.getElementById("videoGrid");
+    const seeMoreBtn = document.getElementById("seeMoreBtn");
+    const collectionsBar = document.getElementById("collectionsBar");
+
+    // Helper: Build secure stream URL through Cloudflare Worker using r2Key
+    function getStreamUrl(video) {
+      const rawKey = (video.r2Key || video.videoUrl || "").trim();
+      const fileName = rawKey.split("/").pop().replace(/^\/+/, "");
+      const base = WORKER_STREAM_URL.replace(/\/+$/, "");
+      return `${base}/${encodeURIComponent(fileName)}`;
+    }
+
+    // 3. Build Collection Filter Pills from existing videos' collection values
+    function refreshCollectionPills() {
+      const names = [...new Set(loadedVideos.map(v => v.collection).filter(Boolean))];
+      collectionsBar.innerHTML = `<button class="pill ${activeCollection === "ALL" ? "active" : ""}" data-collection="ALL">All Videos</button>`;
+      names.forEach((name) => {
+        const btn = document.createElement("button");
+        btn.className = `pill ${activeCollection === name ? "active" : ""}`;
+        btn.dataset.collection = name;
+        btn.textContent = name;
+        collectionsBar.appendChild(btn);
+      });
+    }
+
+    collectionsBar.addEventListener("click", (e) => {
+      if (!e.target.classList.contains("pill")) return;
+      activeCollection = e.target.dataset.collection;
+      document.getElementById("gridHeading").textContent =
+        activeCollection === "ALL" ? "Latest Releases" : activeCollection;
+      resetAndLoadVideos();
+    });
+
+    // 4. Fetch Videos with "See More" Cursor Pagination
+    async function fetchVideos(isNextPage = false) {
+      seeMoreBtn.textContent = "Loading...";
+      seeMoreBtn.disabled = true;
+
+      try {
+        let constraints = [orderBy("createdAt", "desc"), limit(PAGE_SIZE)];
+        if (activeCollection !== "ALL") {
+          constraints = [
+            where("collection", "==", activeCollection),
+            orderBy("createdAt", "desc"),
+            limit(PAGE_SIZE)
+          ];
+        }
+        if (isNextPage && lastVisibleDoc) {
+          constraints.push(startAfter(lastVisibleDoc));
+        }
+
+        const q = query(collection(db, "videos"), ...constraints);
+        const snapshot = await getDocs(q);
+
+        if (!snapshot.empty) {
+          lastVisibleDoc = snapshot.docs[snapshot.docs.length - 1];
+          snapshot.forEach((doc) => {
+            const data = { id: doc.id, ...doc.data() };
+            loadedVideos.push(data);
+            renderVideoCard(data);
+          });
+
+          refreshCollectionPills();
+
+          if (!isNextPage && loadedVideos.length > 0) {
+            setHero(loadedVideos[0]);
+          }
+        } else if (!isNextPage) {
+          videoGrid.innerHTML = `<p style="color: var(--text-secondary);">No videos published yet.</p>`;
+        }
+
+        seeMoreBtn.style.display = snapshot.size === PAGE_SIZE ? "inline-block" : "none";
+      } catch (err) {
+        console.error("Failed to load videos:", err);
+        videoGrid.innerHTML = `<p style="color: var(--text-secondary);">Could not load videos: ${escapeHtml(err.message)}</p>`;
+      } finally {
+        seeMoreBtn.textContent = "See More Videos ↓";
+        seeMoreBtn.disabled = false;
+        document.getElementById("videoCount").textContent = `${loadedVideos.length} loaded`;
+      }
+    }
+
+    function resetAndLoadVideos() {
+      videoGrid.innerHTML = "";
+      loadedVideos = [];
+      lastVisibleDoc = null;
+      fetchVideos(false);
+    }
+
+    function setHero(video) {
+      document.getElementById("heroCollection").textContent = video.collection || "Featured";
+      document.getElementById("heroTitle").textContent = video.title || "Untitled";
+      document.getElementById("heroDesc").textContent = video.description || "";
+      const playBtn = document.getElementById("heroPlayBtn");
+      playBtn.style.display = "inline-block";
+      playBtn.onclick = () => openPlayer(video);
+    }
+
+    function renderVideoCard(video) {
+      const streamUrl = getStreamUrl(video);
+      const card = document.createElement("article");
+      card.className = "video-card";
+      card.innerHTML = `
+        <div class="thumb-wrapper">
+          ${video.posterUrl
+            ? `<img src="${escapeHtml(video.posterUrl)}" alt="${escapeHtml(video.title || "")}" style="width:100%; height:100%; object-fit:cover;" />`
+            : `<video src="${escapeHtml(streamUrl)}#t=1.5" preload="metadata" muted playsinline controlsList="nodownload" oncontextmenu="return false;" ondragstart="return false;"></video>`
+          }
+          <div class="play-overlay">
+            <div class="play-circle">▶</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <span class="card-tag">${escapeHtml(video.collection || "General")}</span>
+          <h3 class="card-title">${escapeHtml(video.title || "Untitled")}</h3>
+          <p class="card-desc">${escapeHtml(video.description || "")}</p>
+        </div>
+      `;
+      card.addEventListener("click", () => openPlayer(video));
+      videoGrid.appendChild(card);
+    }
+
+    // 5. Theater Player Modal Controls
+    const modal = document.getElementById("playerModal");
+    const theaterVideo = document.getElementById("theaterVideo");
+
+    function openPlayer(video) {
+      theaterVideo.src = getStreamUrl(video);
+      // Enforce no-download attributes dynamically when source changes
+      theaterVideo.setAttribute('controlsList', 'nodownload noplaybackrate');
+      
+      document.getElementById("modalCollection").textContent = video.collection || "General";
+      document.getElementById("modalTitle").textContent = video.title || "Untitled";
+      document.getElementById("modalDesc").textContent = video.description || "";
+      modal.classList.add("open");
+      theaterVideo.play().catch((err) => {
+        console.error("Playback error:", err);
+      });
+    }
+
+    function closePlayer() {
+      theaterVideo.pause();
+      theaterVideo.removeAttribute("src");
+      theaterVideo.load();
+      modal.classList.remove("open");
+    }
+
+    document.getElementById("closeModalBtn").addEventListener("click", closePlayer);
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) closePlayer();
+    });
+
+    // 6. Live Search Filter
+    document.getElementById("searchInput").addEventListener("input", (e) => {
+      const term = e.target.value.toLowerCase();
+      videoGrid.innerHTML = "";
+      loadedVideos
+        .filter(v =>
+          (v.title || "").toLowerCase().includes(term) ||
+          (v.description || "").toLowerCase().includes(term)
+        )
+        .forEach(renderVideoCard);
+    });
+
+    seeMoreBtn.addEventListener("click", () => fetchVideos(true));
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    // Initialize
+    fetchVideos(false);
+  </script>
+</body>
+</html>
