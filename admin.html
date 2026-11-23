@@ -3,51 +3,416 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Asian Hub — Stream Exclusive Collections</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Asian Hub — Admin Panel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0b0d12;
+      --surface: #131722;
+      --surface-2: #1a2030;
+      --text: #f3f5fa;
+      --muted: #98a2b3;
+      --border: rgba(255, 255, 255, 0.1);
+      --accent: #e11d48;
+      --accent-hover: #be123c;
+      --success: #10b981;
+      --danger: #ef4444;
+    }
+
+    html[data-theme="light"] {
+      --bg: #f6f7fb;
+      --surface: #ffffff;
+      --surface-2: #eef1f7;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: rgba(15, 23, 42, 0.12);
+      --accent: #e11d48;
+      --accent-hover: #be123c;
+      --success: #059669;
+      --danger: #dc2626;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    h1, h2, h3, .brand {
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .brand {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand span.badge {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(225, 29, 72, 0.16);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .actions-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 28px auto;
+      padding: 0 20px 60px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 22px;
+    }
+
+    .auth-box {
+      max-width: 420px;
+      margin: 60px auto;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    @media (max-width: 720px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+
+    .hint {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.92rem;
+    }
+
+    textarea {
+      min-height: 84px;
+      resize: vertical;
+    }
+
+    button {
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 10px 16px;
+      border-radius: 9px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: 0.15s ease;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-secondary {
+      background: var(--surface-2);
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    .btn-secondary:hover {
+      opacity: 0.9;
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.14);
+      color: var(--danger);
+      border-color: rgba(239, 68, 68, 0.3);
+      padding: 7px 12px;
+      font-size: 0.82rem;
+    }
+
+    .btn-edit {
+      background: var(--surface-2);
+      color: var(--text);
+      border-color: var(--border);
+      padding: 7px 12px;
+      font-size: 0.82rem;
+    }
+
+    .status-msg {
+      margin-top: 12px;
+      font-size: 0.88rem;
+      min-height: 20px;
+    }
+
+    .status-ok { color: var(--success); }
+    .status-err { color: var(--danger); }
+
+    .video-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .video-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px 16px;
+      border-radius: 11px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .video-meta h4 {
+      font-size: 1rem;
+      margin-bottom: 3px;
+    }
+
+    .video-meta p {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .pill {
+      display: inline-block;
+      font-size: 0.74rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      margin-right: 6px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Theater Modal Player (Anti-Download) */
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background: rgba(0, 0, 0, 0.88);
+      backdrop-filter: blur(12px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .modal.open {
+      display: flex;
+    }
+    .modal-content {
+      width: 100%;
+      max-width: 960px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
+    }
+    .player-box {
+      position: relative;
+      background: #000;
+      aspect-ratio: 16 / 9;
+      user-select: none;
+    }
+    .player-box video {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .modal-info {
+      padding: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .modal-info h2 {
+      font-size: 1.25rem;
+      margin: 0.25rem 0 0.5rem;
+    }
+    .modal-info p {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+  </style>
 </head>
 <body oncontextmenu="return false;">
-
-  
-  <nav class="navbar">
-    <a href="index.html" class="brand-logo">ASIAN <span>HUB</span></a>
-    <div class="nav-actions">
-      <input type="text" id="searchInput" class="search-input" placeholder="Search titles..." />
-      <button id="themeToggle" class="icon-btn" title="Toggle Theme">☀️</button>
-      <a href="admin.html" class="icon-btn">Admin</a>
+  <header class="topbar">
+    <div class="brand">
+      <span>Asian Hub</span>
+      <span class="badge">Admin</span>
     </div>
-  </nav>
+    <div class="actions-row">
+      <a href="index.html" class="btn-secondary" style="text-decoration:none; display:inline-block;">View Site</a>
+      <button type="button" id="themeToggle" class="btn-secondary">Light / Dark</button>
+      <button type="button" id="logoutBtn" class="btn-secondary hidden">Sign Out</button>
+    </div>
+  </header>
 
-  <!-- Hero Spotlight -->
-  <section class="hero" id="heroSection">
-    <span class="hero-badge" id="heroCollection">Featured Premiere</span>
-    <h1 id="heroTitle">Welcome to Asian Hub</h1>
-    <p id="heroDesc">Curated HD cinema and exclusive video collections streaming seamlessly.</p>
-    <button class="btn-primary" id="heroPlayBtn" style="display:none;">▶ Watch Now</button>
+  <!-- Login View -->
+  <section id="loginSection" class="container">
+    <div class="card auth-box">
+      <h2 style="margin-bottom: 6px;">Admin Sign In</h2>
+      <p class="hint" style="margin-bottom: 18px;">Sign in with your Firebase Authentication admin account.</p>
+      <form id="loginForm">
+        <div class="field">
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" required autocomplete="email" />
+        </div>
+        <div class="field">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" required autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn-primary" style="width: 100%;">Sign In</button>
+        <div id="loginStatus" class="status-msg"></div>
+      </form>
+    </div>
   </section>
 
-  <!-- Collection Filter Pills -->
-  <div class="collections-bar" id="collectionsBar">
-    <button class="pill active" data-collection="ALL">All Videos</button>
-  </div>
+  <!-- Dashboard View -->
+  <main id="dashboardSection" class="container hidden">
+    <div class="card">
+      <h2 id="formTitle" style="margin-bottom: 16px;">Add New Video</h2>
+      <form id="videoForm">
+        <input type="hidden" id="editingDocId" />
 
-  <!-- Main Video Grid -->
-  <main class="container">
-    <div class="section-header">
-      <h2 id="gridHeading">Latest Releases</h2>
-      <span id="videoCount" style="color: var(--text-secondary); font-size: 0.875rem;"></span>
+        <div class="grid-2">
+          <div class="field">
+            <label for="title">Title *</label>
+            <input type="text" id="title" placeholder="e.g., Midnight Echoes (2026)" required />
+          </div>
+          <div class="field">
+            <label for="collection">Collection / Category *</label>
+            <input type="text" id="collection" list="collectionSuggestions" placeholder="e.g., K-Drama, Action, Thriller" required />
+            <datalist id="collectionSuggestions">
+              <option value="Featured"></option>
+              <option value="Action"></option>
+              <option value="Drama"></option>
+              <option value="Thriller"></option>
+              <option value="Shorts"></option>
+            </datalist>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="r2Key">Cloudflare R2 Object Key / Filename *</label>
+            <input type="text" id="r2Key" placeholder="e.g., VID-20260922-WA0002.mp4" required />
+            <div class="hint">Exact object key in your private R2 bucket (streamed via your Cloudflare Worker).</div>
+          </div>
+          <div class="field">
+            <label for="posterUrl">Poster / Thumbnail URL</label>
+            <input type="url" id="posterUrl" placeholder="https://.../poster.jpg" />
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="year">Release Year</label>
+            <input type="number" id="year" placeholder="2026" min="1900" max="2100" />
+          </div>
+          <div class="field">
+            <label for="duration">Duration</label>
+            <input type="text" id="duration" placeholder="e.g., 1h 48m or 12:30" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="description">Synopsis / Description</label>
+          <textarea id="description" placeholder="Short summary of the movie or video..."></textarea>
+        </div>
+
+        <div class="actions-row">
+          <button type="submit" id="saveVideoBtn" class="btn-primary">Save Video</button>
+          <button type="button" id="cancelEditBtn" class="btn-secondary hidden">Cancel Edit</button>
+        </div>
+        <div id="formStatus" class="status-msg"></div>
+      </form>
     </div>
 
-    <div class="video-grid" id="videoGrid"></div>
-
-    <div class="load-more-wrap">
-      <button id="seeMoreBtn" class="icon-btn" style="padding: 0.75rem 2rem; display: none;">
-        See More Videos ↓
-      </button>
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+        <h2>Published Videos (<span id="videoCount">0</span>)</h2>
+        <input type="search" id="adminSearch" placeholder="Search by title or collection..." style="max-width: 280px;" />
+      </div>
+      <div id="videoList" class="video-list">
+        <p class="hint">Loading videos...</p>
+      </div>
     </div>
   </main>
 
-  <!-- Anti-Download Theater Modal -->
+  <!-- Anti-Download Preview Modal -->
   <div class="modal" id="playerModal">
     <div class="modal-content">
       <div class="player-box" oncontextmenu="return false;">
@@ -63,29 +428,37 @@
         ></video>
       </div>
       <div class="modal-info">
-        <div>
-          <span class="card-tag" id="modalCollection">Collection</span>
-          <h2 id="modalTitle" style="margin: 0.25rem 0 0.5rem;">Video Title</h2>
-          <p id="modalDesc" style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;"></p>
+        <div style="flex: 1;">
+          <span class="pill" id="modalCollection">Collection</span>
+          <h2 id="modalTitle">Video Title</h2>
+          <p id="modalDesc">No description.</p>
         </div>
-        <button class="icon-btn" id="closeModalBtn">✕ Close</button>
+        <button type="button" id="closeModalBtn" class="btn-secondary">✕ Close</button>
       </div>
     </div>
   </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-analytics.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-analytics.js";
+    import {
+      getAuth,
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
     import {
       getFirestore,
       collection,
-      getDocs,
+      addDoc,
+      updateDoc,
+      deleteDoc,
+      doc,
       query,
       orderBy,
-      limit,
-      startAfter,
-      where
-    } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+      onSnapshot,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
 
     const WORKER_STREAM_URL = "https://asian.dunethjayasinghe9.workers.dev";
 
@@ -101,33 +474,34 @@
 
     const app = initializeApp(firebaseConfig);
     getAnalytics(app);
+    const auth = getAuth(app);
     const db = getFirestore(app);
+    const videosCol = collection(db, "videos");
 
-    // 1. Dark / Light Mode Logic
-    const themeToggle = document.getElementById("themeToggle");
-    const savedTheme = localStorage.getItem("asianhub_theme") || "dark";
-    document.documentElement.setAttribute("data-theme", savedTheme);
-    themeToggle.textContent = savedTheme === "dark" ? "☀️" : "🌙";
+    // Theme toggle
+    const htmlEl = document.documentElement;
+    const savedTheme = localStorage.getItem("asianhub-theme") || "dark";
+    htmlEl.setAttribute("data-theme", savedTheme);
 
-    themeToggle.addEventListener("click", () => {
-      const current = document.documentElement.getAttribute("data-theme");
-      const next = current === "dark" ? "light" : "dark";
-      document.documentElement.setAttribute("data-theme", next);
-      localStorage.setItem("asianhub_theme", next);
-      themeToggle.textContent = next === "dark" ? "☀️" : "🌙";
+    document.getElementById("themeToggle").addEventListener("click", () => {
+      const next = htmlEl.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      htmlEl.setAttribute("data-theme", next);
+      localStorage.setItem("asianhub-theme", next);
     });
 
-    // 2. State Variables
-    const PAGE_SIZE = 8;
-    let lastVisibleDoc = null;
-    let activeCollection = "ALL";
-    let loadedVideos = [];
+    const loginSection = document.getElementById("loginSection");
+    const dashboardSection = document.getElementById("dashboardSection");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const loginStatus = document.getElementById("loginStatus");
+    const formStatus = document.getElementById("formStatus");
+    const videoListEl = document.getElementById("videoList");
+    const videoCountEl = document.getElementById("videoCount");
+    const adminSearchEl = document.getElementById("adminSearch");
 
-    const videoGrid = document.getElementById("videoGrid");
-    const seeMoreBtn = document.getElementById("seeMoreBtn");
-    const collectionsBar = document.getElementById("collectionsBar");
+    let allVideos = [];
+    let unsubscribeVideos = null;
 
-    // Helper: Build secure stream URL through Cloudflare Worker using r2Key
+    // Helper: Build secure stream URL through Cloudflare Worker
     function getStreamUrl(video) {
       const rawKey = (video.r2Key || video.videoUrl || "").trim();
       const fileName = rawKey.split("/").pop().replace(/^\/+/, "");
@@ -135,159 +509,210 @@
       return `${base}/${encodeURIComponent(fileName)}`;
     }
 
-    // 3. Build Collection Filter Pills from existing videos' collection values
-    function refreshCollectionPills() {
-      const names = [...new Set(loadedVideos.map(v => v.collection).filter(Boolean))];
-      collectionsBar.innerHTML = `<button class="pill ${activeCollection === "ALL" ? "active" : ""}" data-collection="ALL">All Videos</button>`;
-      names.forEach((name) => {
-        const btn = document.createElement("button");
-        btn.className = `pill ${activeCollection === name ? "active" : ""}`;
-        btn.dataset.collection = name;
-        btn.textContent = name;
-        collectionsBar.appendChild(btn);
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      loginStatus.className = "status-msg";
+      loginStatus.textContent = "Signing in...";
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value;
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        loginStatus.textContent = "";
+      } catch (err) {
+        loginStatus.className = "status-msg status-err";
+        loginStatus.textContent = err.message || "Sign-in failed.";
+      }
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+      await signOut(auth);
+    });
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        loginSection.classList.add("hidden");
+        dashboardSection.classList.remove("hidden");
+        logoutBtn.classList.remove("hidden");
+        subscribeToVideos();
+      } else {
+        dashboardSection.classList.add("hidden");
+        logoutBtn.classList.add("hidden");
+        loginSection.classList.remove("hidden");
+        if (unsubscribeVideos) {
+          unsubscribeVideos();
+          unsubscribeVideos = null;
+        }
+      }
+    });
+
+    function subscribeToVideos() {
+      const q = query(videosCol, orderBy("createdAt", "desc"));
+      unsubscribeVideos = onSnapshot(q, (snapshot) => {
+        allVideos = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+        renderVideoList();
+      }, (err) => {
+        videoListEl.innerHTML = `<p class="status-err">Error loading videos: ${err.message}</p>`;
       });
     }
 
-    collectionsBar.addEventListener("click", (e) => {
-      if (!e.target.classList.contains("pill")) return;
-      activeCollection = e.target.dataset.collection;
-      document.getElementById("gridHeading").textContent =
-        activeCollection === "ALL" ? "Latest Releases" : activeCollection;
-      resetAndLoadVideos();
-    });
+    function renderVideoList() {
+      const term = adminSearchEl.value.trim().toLowerCase();
+      const filtered = allVideos.filter((v) =>
+        (v.title || "").toLowerCase().includes(term) ||
+        (v.collection || "").toLowerCase().includes(term) ||
+        (v.r2Key || "").toLowerCase().includes(term)
+      );
 
-    // 4. Fetch Videos with "See More" Cursor Pagination
-    async function fetchVideos(isNextPage = false) {
-      seeMoreBtn.textContent = "Loading...";
-      seeMoreBtn.disabled = true;
+      videoCountEl.textContent = filtered.length;
 
-      try {
-        let constraints = [orderBy("createdAt", "desc"), limit(PAGE_SIZE)];
-        if (activeCollection !== "ALL") {
-          constraints = [
-            where("collection", "==", activeCollection),
-            orderBy("createdAt", "desc"),
-            limit(PAGE_SIZE)
-          ];
-        }
-        if (isNextPage && lastVisibleDoc) {
-          constraints.push(startAfter(lastVisibleDoc));
-        }
-
-        const q = query(collection(db, "videos"), ...constraints);
-        const snapshot = await getDocs(q);
-
-        if (!snapshot.empty) {
-          lastVisibleDoc = snapshot.docs[snapshot.docs.length - 1];
-          snapshot.forEach((doc) => {
-            const data = { id: doc.id, ...doc.data() };
-            loadedVideos.push(data);
-            renderVideoCard(data);
-          });
-
-          refreshCollectionPills();
-
-          if (!isNextPage && loadedVideos.length > 0) {
-            setHero(loadedVideos[0]);
-          }
-        } else if (!isNextPage) {
-          videoGrid.innerHTML = `<p style="color: var(--text-secondary);">No videos published yet.</p>`;
-        }
-
-        seeMoreBtn.style.display = snapshot.size === PAGE_SIZE ? "inline-block" : "none";
-      } catch (err) {
-        console.error("Failed to load videos:", err);
-        videoGrid.innerHTML = `<p style="color: var(--text-secondary);">Could not load videos: ${escapeHtml(err.message)}</p>`;
-      } finally {
-        seeMoreBtn.textContent = "See More Videos ↓";
-        seeMoreBtn.disabled = false;
-        document.getElementById("videoCount").textContent = `${loadedVideos.length} loaded`;
+      if (!filtered.length) {
+        videoListEl.innerHTML = `<p class="hint">No videos found.</p>`;
+        return;
       }
-    }
 
-    function resetAndLoadVideos() {
-      videoGrid.innerHTML = "";
-      loadedVideos = [];
-      lastVisibleDoc = null;
-      fetchVideos(false);
-    }
-
-    function setHero(video) {
-      document.getElementById("heroCollection").textContent = video.collection || "Featured";
-      document.getElementById("heroTitle").textContent = video.title || "Untitled";
-      document.getElementById("heroDesc").textContent = video.description || "";
-      const playBtn = document.getElementById("heroPlayBtn");
-      playBtn.style.display = "inline-block";
-      playBtn.onclick = () => openPlayer(video);
-    }
-
-    function renderVideoCard(video) {
-      const streamUrl = getStreamUrl(video);
-      const card = document.createElement("article");
-      card.className = "video-card";
-      card.innerHTML = `
-        <div class="thumb-wrapper">
-          ${video.posterUrl
-            ? `<img src="${escapeHtml(video.posterUrl)}" alt="${escapeHtml(video.title || "")}" style="width:100%; height:100%; object-fit:cover;" />`
-            : `<video src="${escapeHtml(streamUrl)}#t=1.5" preload="metadata" muted playsinline controlsList="nodownload" oncontextmenu="return false;" ondragstart="return false;"></video>`
-          }
-          <div class="play-overlay">
-            <div class="play-circle">▶</div>
+      videoListEl.innerHTML = filtered.map((v) => `
+        <div class="video-item">
+          <div class="video-meta">
+            <h4>${escapeHtml(v.title || "Untitled")}</h4>
+            <p>
+              <span class="pill">${escapeHtml(v.collection || "General")}</span>
+              ${v.year ? `<span class="pill">${escapeHtml(String(v.year))}</span>` : ""}
+              ${v.duration ? `<span class="pill">${escapeHtml(v.duration)}</span>` : ""}
+              <span>Key: <code>${escapeHtml(v.r2Key || "")}</code></span>
+            </p>
+          </div>
+          <div class="actions-row">
+            <button type="button" class="btn-secondary" data-preview="${v.id}" style="padding: 7px 12px; font-size: 0.82rem;">▶ Preview</button>
+            <button type="button" class="btn-edit" data-edit="${v.id}">Edit</button>
+            <button type="button" class="btn-danger" data-delete="${v.id}">Delete</button>
           </div>
         </div>
-        <div class="card-body">
-          <span class="card-tag">${escapeHtml(video.collection || "General")}</span>
-          <h3 class="card-title">${escapeHtml(video.title || "Untitled")}</h3>
-          <p class="card-desc">${escapeHtml(video.description || "")}</p>
-        </div>
-      `;
-      card.addEventListener("click", () => openPlayer(video));
-      videoGrid.appendChild(card);
+      `).join("");
     }
 
-    // 5. Theater Player Modal Controls
+    adminSearchEl.addEventListener("input", renderVideoList);
+
+    const videoForm = document.getElementById("videoForm");
+    const editingDocIdEl = document.getElementById("editingDocId");
+    const formTitleEl = document.getElementById("formTitle");
+    const cancelEditBtn = document.getElementById("cancelEditBtn");
+
+    function resetForm() {
+      videoForm.reset();
+      editingDocIdEl.value = "";
+      formTitleEl.textContent = "Add New Video";
+      cancelEditBtn.classList.add("hidden");
+    }
+
+    cancelEditBtn.addEventListener("click", resetForm);
+
+    videoForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      formStatus.className = "status-msg";
+      formStatus.textContent = "Saving...";
+
+      const payload = {
+        title: document.getElementById("title").value.trim(),
+        collection: document.getElementById("collection").value.trim(),
+        r2Key: document.getElementById("r2Key").value.trim().replace(/^\/+/, ""),
+        posterUrl: document.getElementById("posterUrl").value.trim(),
+        year: Number(document.getElementById("year").value) || null,
+        duration: document.getElementById("duration").value.trim(),
+        description: document.getElementById("description").value.trim(),
+        updatedAt: serverTimestamp()
+      };
+
+      try {
+        if (editingDocIdEl.value) {
+          await updateDoc(doc(db, "videos", editingDocIdEl.value), payload);
+          formStatus.className = "status-msg status-ok";
+          formStatus.textContent = "Video updated!";
+        } else {
+          await addDoc(videosCol, {
+            ...payload,
+            createdAt: serverTimestamp()
+          });
+          formStatus.className = "status-msg status-ok";
+          formStatus.textContent = "Video added!";
+        }
+        resetForm();
+      } catch (err) {
+        formStatus.className = "status-msg status-err";
+        formStatus.textContent = err.message || "Failed to save video.";
+      }
+    });
+
+    // Preview Modal Controls
     const modal = document.getElementById("playerModal");
     const theaterVideo = document.getElementById("theaterVideo");
 
-    function openPlayer(video) {
-      theaterVideo.src = getStreamUrl(video);
+    function openPreview(video) {
+      const streamUrl = getStreamUrl(video);
+      theaterVideo.src = streamUrl;
       // Enforce no-download attributes dynamically when source changes
       theaterVideo.setAttribute('controlsList', 'nodownload noplaybackrate');
       
       document.getElementById("modalCollection").textContent = video.collection || "General";
       document.getElementById("modalTitle").textContent = video.title || "Untitled";
-      document.getElementById("modalDesc").textContent = video.description || "";
+      document.getElementById("modalDesc").textContent = video.description || "No description.";
       modal.classList.add("open");
       theaterVideo.play().catch((err) => {
         console.error("Playback error:", err);
       });
     }
 
-    function closePlayer() {
+    function closePreview() {
       theaterVideo.pause();
       theaterVideo.removeAttribute("src");
       theaterVideo.load();
       modal.classList.remove("open");
     }
 
-    document.getElementById("closeModalBtn").addEventListener("click", closePlayer);
+    document.getElementById("closeModalBtn").addEventListener("click", closePreview);
     modal.addEventListener("click", (e) => {
-      if (e.target === modal) closePlayer();
+      if (e.target === modal) closePreview();
     });
 
-    // 6. Live Search Filter
-    document.getElementById("searchInput").addEventListener("input", (e) => {
-      const term = e.target.value.toLowerCase();
-      videoGrid.innerHTML = "";
-      loadedVideos
-        .filter(v =>
-          (v.title || "").toLowerCase().includes(term) ||
-          (v.description || "").toLowerCase().includes(term)
-        )
-        .forEach(renderVideoCard);
-    });
+    videoListEl.addEventListener("click", async (e) => {
+      const previewId = e.target.getAttribute("data-preview");
+      const editId = e.target.getAttribute("data-edit");
+      const deleteId = e.target.getAttribute("data-delete");
 
-    seeMoreBtn.addEventListener("click", () => fetchVideos(true));
+      if (previewId) {
+        const item = allVideos.find((v) => v.id === previewId);
+        if (item) openPreview(item);
+      }
+
+      if (editId) {
+        const item = allVideos.find((v) => v.id === editId);
+        if (!item) return;
+        editingDocIdEl.value = item.id;
+        document.getElementById("title").value = item.title || "";
+        document.getElementById("collection").value = item.collection || "";
+        document.getElementById("r2Key").value = item.r2Key || "";
+        document.getElementById("posterUrl").value = item.posterUrl || "";
+        document.getElementById("year").value = item.year || "";
+        document.getElementById("duration").value = item.duration || "";
+        document.getElementById("description").value = item.description || "";
+        formTitleEl.textContent = "Edit Video";
+        cancelEditBtn.classList.remove("hidden");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      if (deleteId) {
+        const confirmed = confirm("Delete this video entry from Firestore?");
+        if (!confirmed) return;
+        try {
+          await deleteDoc(doc(db, "videos", deleteId));
+          formStatus.className = "status-msg status-ok";
+          formStatus.textContent = "Video deleted.";
+        } catch (err) {
+          formStatus.className = "status-msg status-err";
+          formStatus.textContent = err.message || "Delete failed.";
+        }
+      }
+    });
 
     function escapeHtml(str) {
       return String(str)
@@ -296,9 +721,6 @@
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;");
     }
-
-    // Initialize
-    fetchVideos(false);
   </script>
 </body>
 </html>
