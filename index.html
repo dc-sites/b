@@ -37,13 +37,9 @@
       <h2 id="gridHeading">Latest Releases</h2>
       <span id="videoCount" style="color: var(--text-secondary); font-size: 0.875rem;"></span>
     </div>
-
     <div class="video-grid" id="videoGrid"></div>
-
     <div class="load-more-wrap">
-      <button id="seeMoreBtn" class="icon-btn" style="padding: 0.75rem 2rem; display: none;">
-        See More Videos ↓
-      </button>
+      <button id="seeMoreBtn" class="icon-btn" style="padding: 0.75rem 2rem; display: none;">See More Videos ↓</button>
     </div>
   </main>
 
@@ -51,11 +47,7 @@
   <div class="modal" id="playerModal">
     <div class="modal-content">
       <div class="player-box" id="playerBox" oncontextmenu="return false;">
-        <video
-          id="theaterVideo"
-          playsinline
-          preload="metadata"
-        ></video>
+        <video id="theaterVideo" playsinline preload="metadata"></video>
 
         <!-- Watermark Overlay -->
         <div class="watermark" id="watermark">asianx.site</div>
@@ -63,24 +55,17 @@
         <!-- Screenshot Protection Overlay -->
         <div class="screenshot-guard" id="screenshotGuard"></div>
 
-        <!-- Custom Controls -->
+        <!-- Custom Controls (always visible, no auto-hide) -->
         <div class="custom-controls" id="customControls">
-          <div class="progress-container">
+          <div class="progress-container" id="progressContainer">
             <div class="progress-bar" id="progressBar">
               <div class="progress-buffered" id="progressBuffered"></div>
               <div class="progress-filled" id="progressFilled"></div>
-              <div class="progress-thumb" id="progressThumb"></div>
             </div>
           </div>
           <div class="controls-row">
-            <button class="ctrl-btn" id="playPauseBtn" title="Play/Pause (Space)">
-              <span class="icon-play">▶</span>
-              <span class="icon-pause" style="display:none;">❚❚</span>
-            </button>
-            <div class="volume-wrap">
-              <button class="ctrl-btn" id="muteBtn" title="Mute (M)">🔊</button>
-              <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="1" />
-            </div>
+            <button class="ctrl-btn" id="playPauseBtn" title="Play/Pause (Space)">▶</button>
+            <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="1" title="Volume" />
             <div class="time-display">
               <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
             </div>
@@ -92,16 +77,6 @@
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
             </button>
           </div>
-        </div>
-
-        <!-- Center Play Button (shows when paused) -->
-        <div class="center-play" id="centerPlay">
-          <div class="center-play-circle">▶</div>
-        </div>
-
-        <!-- Loading Spinner -->
-        <div class="player-loader" id="playerLoader">
-          <div class="loader-ring"></div>
         </div>
       </div>
 
@@ -120,7 +95,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-analytics.js";
     import {
-      getFirestore, collection, getDocs, query, orderBy, limit, startAfter, where, doc, getDoc
+      getFirestore, collection, getDocs, query, orderBy, limit, startAfter, doc, getDoc
     } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -271,29 +246,24 @@
       videoGrid.appendChild(card);
     }
 
-    // ============ Professional Player Logic ============
+    // ============ Professional Player Logic (Optimized) ============
     const modal = document.getElementById("playerModal");
     const playerBox = document.getElementById("playerBox");
     const theaterVideo = document.getElementById("theaterVideo");
-    const customControls = document.getElementById("customControls");
     const playPauseBtn = document.getElementById("playPauseBtn");
-    const muteBtn = document.getElementById("muteBtn");
     const volumeSlider = document.getElementById("volumeSlider");
+    const progressContainer = document.getElementById("progressContainer");
     const progressBar = document.getElementById("progressBar");
     const progressFilled = document.getElementById("progressFilled");
     const progressBuffered = document.getElementById("progressBuffered");
-    const progressThumb = document.getElementById("progressThumb");
     const currentTimeEl = document.getElementById("currentTime");
     const durationEl = document.getElementById("duration");
     const pipBtn = document.getElementById("pipBtn");
     const fullscreenBtn = document.getElementById("fullscreenBtn");
-    const centerPlay = document.getElementById("centerPlay");
-    const playerLoader = document.getElementById("playerLoader");
     const watermark = document.getElementById("watermark");
     const screenshotGuard = document.getElementById("screenshotGuard");
 
     let watermarkInterval = null;
-    let controlsTimeout = null;
     let playerSettings = {
       watermarkText: "asianx.site",
       screenshotProtection: false
@@ -315,11 +285,9 @@
     }
 
     function applyPlayerSettings() {
-      // Apply watermark text
       watermark.textContent = playerSettings.watermarkText;
       startWatermarkMovement();
 
-      // Apply screenshot protection
       if (playerSettings.screenshotProtection) {
         screenshotGuard.style.display = "block";
         playerBox.classList.add("protected");
@@ -376,31 +344,24 @@
     }
 
     playPauseBtn.addEventListener("click", togglePlay);
-    centerPlay.addEventListener("click", togglePlay);
-    theaterVideo.addEventListener("click", togglePlay);
 
     theaterVideo.addEventListener("play", () => {
-      playPauseBtn.querySelector(".icon-play").style.display = "none";
-      playPauseBtn.querySelector(".icon-pause").style.display = "inline";
-      centerPlay.style.display = "none";
+      playPauseBtn.textContent = "❚❚";
     });
 
     theaterVideo.addEventListener("pause", () => {
-      playPauseBtn.querySelector(".icon-play").style.display = "inline";
-      playPauseBtn.querySelector(".icon-pause").style.display = "none";
-      centerPlay.style.display = "flex";
-      showControls();
+      playPauseBtn.textContent = "▶";
     });
 
-    theaterVideo.addEventListener("waiting", () => playerLoader.style.display = "flex");
-    theaterVideo.addEventListener("canplay", () => playerLoader.style.display = "none");
-    theaterVideo.addEventListener("playing", () => playerLoader.style.display = "none");
-
-    // Time & Progress
+    // Time & Progress (OPTIMIZED: throttled updates)
+    let lastTimeUpdate = 0;
     theaterVideo.addEventListener("timeupdate", () => {
+      const now = Date.now();
+      if (now - lastTimeUpdate < 200) return; // Throttle to 5 updates per second
+      lastTimeUpdate = now;
+
       const pct = (theaterVideo.currentTime / theaterVideo.duration) * 100 || 0;
       progressFilled.style.width = pct + "%";
-      progressThumb.style.left = pct + "%";
       currentTimeEl.textContent = formatTime(theaterVideo.currentTime);
     });
 
@@ -416,29 +377,17 @@
       }
     });
 
-    progressBar.addEventListener("click", (e) => {
+    progressContainer.addEventListener("click", (e) => {
       const rect = progressBar.getBoundingClientRect();
       const pct = (e.clientX - rect.left) / rect.width;
       theaterVideo.currentTime = pct * theaterVideo.duration;
     });
 
-    // Volume
-    muteBtn.addEventListener("click", () => {
-      theaterVideo.muted = !theaterVideo.muted;
-      updateVolumeIcon();
-    });
-
+    // Volume (simple, no dynamic icon)
     volumeSlider.addEventListener("input", (e) => {
       theaterVideo.volume = e.target.value;
       theaterVideo.muted = e.target.value == 0;
-      updateVolumeIcon();
     });
-
-    function updateVolumeIcon() {
-      if (theaterVideo.muted || theaterVideo.volume === 0) muteBtn.textContent = "🔇";
-      else if (theaterVideo.volume < 0.5) muteBtn.textContent = "🔉";
-      else muteBtn.textContent = "🔊";
-    }
 
     // Picture-in-Picture
     pipBtn.addEventListener("click", async () => {
@@ -453,12 +402,28 @@
       }
     });
 
-    // Fullscreen (makes the whole player-box fullscreen, so watermark stays visible)
-    fullscreenBtn.addEventListener("click", () => {
+    // Fullscreen with Auto-Landscape on Mobile
+    fullscreenBtn.addEventListener("click", async () => {
       if (document.fullscreenElement) {
-        document.exitFullscreen();
+        await document.exitFullscreen();
+        // Restore portrait on mobile when exiting fullscreen
+        if (screen.orientation && screen.orientation.lock) {
+          screen.orientation.unlock();
+        }
       } else {
-        playerBox.requestFullscreen().catch(err => console.warn(err));
+        try {
+          // Try to lock to landscape on mobile BEFORE entering fullscreen
+          if (screen.orientation && screen.orientation.lock) {
+            try {
+              await screen.orientation.lock("landscape");
+            } catch (e) {
+              console.warn("Orientation lock failed:", e);
+            }
+          }
+          await playerBox.requestFullscreen();
+        } catch (err) {
+          console.warn("Fullscreen failed:", err);
+        }
       }
     });
 
@@ -469,30 +434,7 @@
         : `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>`;
     });
 
-    // Auto-hide controls
-    function showControls() {
-      customControls.style.opacity = "1";
-      customControls.style.pointerEvents = "auto";
-      clearTimeout(controlsTimeout);
-      if (!theaterVideo.paused) {
-        controlsTimeout = setTimeout(() => {
-          customControls.style.opacity = "0";
-          customControls.style.pointerEvents = "none";
-        }, 3000);
-      }
-    }
-
-    playerBox.addEventListener("mousemove", showControls);
-    playerBox.addEventListener("mouseleave", () => {
-      if (!theaterVideo.paused) {
-        controlsTimeout = setTimeout(() => {
-          customControls.style.opacity = "0";
-          customControls.style.pointerEvents = "none";
-        }, 1000);
-      }
-    });
-
-    // Keyboard Shortcuts
+    // Keyboard Shortcuts (simplified)
     document.addEventListener("keydown", (e) => {
       if (!modal.classList.contains("open")) return;
       if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
@@ -515,17 +457,14 @@
           e.preventDefault();
           theaterVideo.volume = Math.min(1, theaterVideo.volume + 0.1);
           volumeSlider.value = theaterVideo.volume;
-          updateVolumeIcon();
           break;
         case "arrowdown":
           e.preventDefault();
           theaterVideo.volume = Math.max(0, theaterVideo.volume - 0.1);
           volumeSlider.value = theaterVideo.volume;
-          updateVolumeIcon();
           break;
         case "m":
           theaterVideo.muted = !theaterVideo.muted;
-          updateVolumeIcon();
           break;
         case "f":
           fullscreenBtn.click();
@@ -542,12 +481,6 @@
       }
     });
 
-    // Double-click fullscreen
-    theaterVideo.addEventListener("dblclick", (e) => {
-      e.preventDefault();
-      fullscreenBtn.click();
-    });
-
     // Open/Close Player
     function openPlayer(video) {
       theaterVideo.src = getStreamUrl(video);
@@ -557,7 +490,6 @@
       document.getElementById("modalDesc").textContent = video.description || "";
       modal.classList.add("open");
       theaterVideo.play().catch(err => console.warn("Autoplay blocked:", err));
-      showControls();
     }
 
     function closePlayer() {
@@ -570,6 +502,9 @@
       }
       if (document.fullscreenElement) {
         document.exitFullscreen().catch(() => {});
+        if (screen.orientation && screen.orientation.unlock) {
+          screen.orientation.unlock();
+        }
       }
     }
 
