@@ -94,6 +94,44 @@
     .pill { display: inline-block; font-size: 0.74rem; padding: 2px 8px; border-radius: 999px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); margin-right: 6px; }
     .hidden { display: none !important; }
 
+    /* Toggle Switch */
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 50px;
+      height: 26px;
+      background: var(--surface-2);
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.3s;
+      border: 1px solid var(--border);
+    }
+
+    .toggle-switch.active {
+      background: var(--success);
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.3s;
+    }
+
+    .toggle-switch.active::after {
+      transform: translateX(24px);
+    }
+
     /* Theater Modal Player (Anti-Download) */
     .modal { position: fixed; inset: 0; z-index: 999; background: rgba(0, 0, 0, 0.88); backdrop-filter: blur(12px); display: none; align-items: center; justify-content: center; padding: 1.5rem; }
     .modal.open { display: flex; }
@@ -140,6 +178,32 @@
 
   <!-- Dashboard View -->
   <main id="dashboardSection" class="container hidden">
+    <!-- Player Settings Card -->
+    <div class="card">
+      <h2 style="margin-bottom: 16px;">🎬 Player Settings</h2>
+      <form id="playerSettingsForm">
+        <div class="field">
+          <label for="watermarkText">Watermark Text</label>
+          <input type="text" id="watermarkText" placeholder="asianx.site" />
+          <div class="hint">This text will appear as a semi-transparent watermark on all videos.</div>
+        </div>
+
+        <div class="field">
+          <label>Screenshot Restriction</label>
+          <div class="toggle-container">
+            <div class="toggle-switch" id="screenshotToggle"></div>
+            <span id="screenshotLabel" style="font-size: 0.9rem;">Disabled</span>
+          </div>
+          <div class="hint">When enabled, adds an overlay to prevent easy screenshots (CSS-based protection).</div>
+        </div>
+
+        <div class="actions-row">
+          <button type="submit" class="btn-primary">Save Settings</button>
+        </div>
+        <div id="settingsStatus" class="status-msg"></div>
+      </form>
+    </div>
+
     <div class="card">
       <h2 id="formTitle" style="margin-bottom: 16px;">Add New Video</h2>
       <form id="videoForm">
@@ -155,10 +219,10 @@
             <input type="text" id="collection" list="collectionSuggestions" placeholder="e.g., K-Drama, Action, Thriller" required />
             <datalist id="collectionSuggestions">
               <option value="Featured"></option>
-              <option value="Nude"></option>
-              <option value="Porn"></option>
-              <option value="Threesome"></option>
-              <option value="Mastrubation"></option>
+              <option value="Action"></option>
+              <option value="Drama"></option>
+              <option value="Thriller"></option>
+              <option value="Shorts"></option>
             </datalist>
           </div>
         </div>
@@ -218,7 +282,6 @@
           id="theaterVideo"
           controls
           controlsList="nodownload noplaybackrate"
-          disablePictureInPicture
           playsinline
           oncontextmenu="return false;"
           ondragstart="return false;"
@@ -255,7 +318,9 @@
       query,
       orderBy,
       onSnapshot,
-      serverTimestamp
+      serverTimestamp,
+      setDoc,
+      getDoc
     } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -293,11 +358,12 @@
     const videoListEl = document.getElementById("videoList");
     const videoCountEl = document.getElementById("videoCount");
     const adminSearchEl = document.getElementById("adminSearch");
+    const settingsStatus = document.getElementById("settingsStatus");
 
     let allVideos = [];
     let unsubscribeVideos = null;
 
-    // Helper: Get direct video URL (No worker manipulation)
+    // Helper: Get direct video URL
     function getStreamUrl(video) {
       return (video.videoUrl || video.r2Key || "").trim();
     }
@@ -328,6 +394,7 @@
         dashboardSection.classList.remove("hidden");
         logoutBtn.classList.remove("hidden");
         subscribeToVideos();
+        loadPlayerSettings();
       } else {
         dashboardSection.classList.add("hidden");
         logoutBtn.classList.add("hidden");
@@ -336,6 +403,66 @@
           unsubscribeVideos();
           unsubscribeVideos = null;
         }
+      }
+    });
+
+    // Load player settings
+    async function loadPlayerSettings() {
+      try {
+        const settingsDoc = await getDoc(doc(db, "settings", "playerSettings"));
+        if (settingsDoc.exists()) {
+          const settings = settingsDoc.data();
+          document.getElementById("watermarkText").value = settings.watermarkText || "asianx.site";
+          const toggle = document.getElementById("screenshotToggle");
+          const label = document.getElementById("screenshotLabel");
+          if (settings.screenshotRestriction) {
+            toggle.classList.add("active");
+            label.textContent = "Enabled";
+          } else {
+            toggle.classList.remove("active");
+            label.textContent = "Disabled";
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load settings:", err);
+      }
+    }
+
+    // Screenshot toggle
+    const screenshotToggle = document.getElementById("screenshotToggle");
+    const screenshotLabel = document.getElementById("screenshotLabel");
+    let screenshotEnabled = false;
+
+    screenshotToggle.addEventListener("click", () => {
+      screenshotEnabled = !screenshotEnabled;
+      if (screenshotEnabled) {
+        screenshotToggle.classList.add("active");
+        screenshotLabel.textContent = "Enabled";
+      } else {
+        screenshotToggle.classList.remove("active");
+        screenshotLabel.textContent = "Disabled";
+      }
+    });
+
+    // Save player settings
+    document.getElementById("playerSettingsForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      settingsStatus.className = "status-msg";
+      settingsStatus.textContent = "Saving...";
+
+      const watermarkText = document.getElementById("watermarkText").value.trim() || "asianx.site";
+
+      try {
+        await setDoc(doc(db, "settings", "playerSettings"), {
+          watermarkText: watermarkText,
+          screenshotRestriction: screenshotEnabled,
+          updatedAt: serverTimestamp()
+        });
+        settingsStatus.className = "status-msg status-ok";
+        settingsStatus.textContent = "Settings saved successfully!";
+      } catch (err) {
+        settingsStatus.className = "status-msg status-err";
+        settingsStatus.textContent = err.message || "Failed to save settings.";
       }
     });
 
@@ -443,7 +570,6 @@
     function openPreview(video) {
       const streamUrl = getStreamUrl(video);
       theaterVideo.src = streamUrl;
-      // Enforce no-download attributes dynamically when source changes
       theaterVideo.setAttribute('controlsList', 'nodownload noplaybackrate');
       
       document.getElementById("modalCollection").textContent = video.collection || "General";
