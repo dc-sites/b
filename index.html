@@ -5,8 +5,75 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Asian Hub — Stream Exclusive Collections</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Watermark Styles */
+    .watermark {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.4);
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+      pointer-events: none;
+      z-index: 10;
+      transition: all 0.5s ease;
+      user-select: none;
+    }
+
+    .watermark.moving {
+      animation: watermarkMove 30s infinite alternate;
+    }
+
+    @keyframes watermarkMove {
+      0% { top: 20px; right: 20px; }
+      25% { top: 20px; left: 20px; right: auto; }
+      50% { bottom: 80px; left: 20px; top: auto; right: auto; }
+      75% { bottom: 80px; right: 20px; top: auto; }
+      100% { top: 20px; right: 20px; }
+    }
+
+    /* Screenshot Restriction Overlay */
+    .screenshot-blocker {
+      position: absolute;
+      inset: 0;
+      background: transparent;
+      z-index: 15;
+      pointer-events: auto;
+    }
+
+    .screenshot-blocker.active {
+      background: rgba(0, 0, 0, 0.01);
+      mix-blend-mode: multiply;
+    }
+
+    /* PiP Button */
+    .pip-btn {
+      position: absolute;
+      bottom: 60px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      z-index: 20;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .player-box:hover .pip-btn {
+      opacity: 1;
+    }
+
+    .pip-btn:hover {
+      background: rgba(139, 92, 246, 0.9);
+    }
+  </style>
 </head>
-  <script src="https://quge5.com/88/tag.min.js" data-zone="314634" async data-cfasync="false"></script>
 <body oncontextmenu="return false;">
 
   <!-- Navigation -->
@@ -15,7 +82,7 @@
     <div class="nav-actions">
       <input type="text" id="searchInput" class="search-input" placeholder="Search titles..." />
       <button id="themeToggle" class="icon-btn" title="Toggle Theme">☀️</button>
-     
+      <a href="admin.html" class="icon-btn">Admin</a>
     </div>
   </nav>
 
@@ -23,7 +90,7 @@
   <section class="hero" id="heroSection">
     <span class="hero-badge" id="heroCollection">Featured Premiere</span>
     <h1 id="heroTitle">Welcome to Asian Hub</h1>
-    <p id="heroDesc">Curated HD and exclusive porn video collections streaming seamlessly.</p>
+    <p id="heroDesc">Curated HD cinema and exclusive video collections streaming seamlessly.</p>
     <button class="btn-primary" id="heroPlayBtn" style="display:none;">▶ Watch Now</button>
   </section>
 
@@ -56,12 +123,14 @@
           id="theaterVideo"
           controls
           controlsList="nodownload noplaybackrate"
-          disablePictureInPicture
           playsinline
           oncontextmenu="return false;"
           ondragstart="return false;"
           onselectstart="return false;"
         ></video>
+        <div class="watermark" id="videoWatermark">asianx.site</div>
+        <div class="screenshot-blocker" id="screenshotBlocker"></div>
+        <button class="pip-btn" id="pipBtn" title="Picture-in-Picture">📺 PiP</button>
       </div>
       <div class="modal-info">
         <div>
@@ -84,7 +153,9 @@
       query,
       orderBy,
       limit,
-      startAfter
+      startAfter,
+      doc,
+      getDoc
     } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -125,9 +196,33 @@
     const seeMoreBtn = document.getElementById("seeMoreBtn");
     const collectionsBar = document.getElementById("collectionsBar");
 
+    // Player elements
+    const theaterVideo = document.getElementById("theaterVideo");
+    const watermark = document.getElementById("videoWatermark");
+    const screenshotBlocker = document.getElementById("screenshotBlocker");
+    const pipBtn = document.getElementById("pipBtn");
+
     // Helper: Get direct video URL
     function getStreamUrl(video) {
       return (video.videoUrl || video.r2Key || "").trim();
+    }
+
+    // Load player settings from Firestore
+    async function loadPlayerSettings() {
+      try {
+        const settingsDoc = await getDoc(doc(db, "settings", "playerSettings"));
+        if (settingsDoc.exists()) {
+          const settings = settingsDoc.data();
+          watermark.textContent = settings.watermarkText || "asianx.site";
+          if (settings.screenshotRestriction) {
+            screenshotBlocker.classList.add("active");
+          } else {
+            screenshotBlocker.classList.remove("active");
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load player settings:", err);
+      }
     }
 
     // 3. Build Collection Filter Pills
@@ -151,14 +246,12 @@
       resetAndLoadVideos();
     });
 
-    // 4. Fetch Videos (Fixed to avoid Firestore composite index errors)
+    // 4. Fetch Videos
     async function fetchVideos(isNextPage = false) {
       seeMoreBtn.textContent = "Loading...";
       seeMoreBtn.disabled = true;
 
       try {
-        // Fetch a larger batch when filtering to avoid strict Firestore index requirements.
-        // This handles sorting and filtering smoothly on the client side.
         const isFiltered = activeCollection !== "ALL";
         const fetchLimit = isFiltered ? 100 : PAGE_SIZE;
         
@@ -172,18 +265,15 @@
 
         let fetchedDocs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
-        // Client-side filtering (case-insensitive and trim-safe)
         if (isFiltered) {
           const targetCollection = activeCollection.trim().toLowerCase();
           fetchedDocs = fetchedDocs.filter(v => (v.collection || "").trim().toLowerCase() === targetCollection);
         }
 
         if (fetchedDocs.length > 0) {
-          // Update cursor to the last document fetched from Firestore overall
           lastVisibleDoc = snapshot.docs[snapshot.docs.length - 1];
           
           fetchedDocs.forEach((data) => {
-            // Prevent duplicate rendering
             if (!loadedVideos.some(v => v.id === data.id)) {
               loadedVideos.push(data);
               renderVideoCard(data);
@@ -199,7 +289,6 @@
           videoGrid.innerHTML = `<p style="color: var(--text-secondary);">No videos published in this category yet.</p>`;
         }
 
-        // Show "See More" if we got a full batch from Firestore (meaning there might be more)
         seeMoreBtn.style.display = snapshot.size === fetchLimit ? "inline-block" : "none";
 
       } catch (err) {
@@ -258,7 +347,6 @@
 
     // 5. Theater Player Modal Controls
     const modal = document.getElementById("playerModal");
-    const theaterVideo = document.getElementById("theaterVideo");
 
     function openPlayer(video) {
       theaterVideo.src = getStreamUrl(video);
@@ -268,6 +356,10 @@
       document.getElementById("modalTitle").textContent = video.title || "Untitled";
       document.getElementById("modalDesc").textContent = video.description || "";
       modal.classList.add("open");
+      
+      // Start watermark animation
+      watermark.classList.add("moving");
+      
       theaterVideo.play().catch((err) => {
         console.error("Playback error:", err);
       });
@@ -278,11 +370,31 @@
       theaterVideo.removeAttribute("src");
       theaterVideo.load();
       modal.classList.remove("open");
+      watermark.classList.remove("moving");
+      
+      // Exit PiP if active
+      if (document.pictureInPictureElement) {
+        document.exitPictureInPicture().catch(err => console.error(err));
+      }
     }
 
     document.getElementById("closeModalBtn").addEventListener("click", closePlayer);
     modal.addEventListener("click", (e) => {
       if (e.target === modal) closePlayer();
+    });
+
+    // PiP Button
+    pipBtn.addEventListener("click", async () => {
+      try {
+        if (document.pictureInPictureElement) {
+          await document.exitPictureInPicture();
+        } else if (theaterVideo.readyState >= 2) {
+          await theaterVideo.requestPictureInPicture();
+        }
+      } catch (err) {
+        console.error("PiP error:", err);
+        alert("Picture-in-Picture is not supported or the video is not ready.");
+      }
     });
 
     // 6. Live Search Filter
@@ -308,6 +420,7 @@
     }
 
     // Initialize
+    loadPlayerSettings();
     fetchVideos(false);
   </script>
 </body>
