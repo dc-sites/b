@@ -87,8 +87,6 @@
       where
     } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
-    const WORKER_STREAM_URL = "https://asian.dunethjayasinghe9.workers.dev";
-
     const firebaseConfig = {
       apiKey: "AIzaSyAEdEpK8B4WGR0iYZL5GKR20Q5p1MCU2l4",
       authDomain: "asianhub-9f45c.firebaseapp.com",
@@ -127,12 +125,9 @@
     const seeMoreBtn = document.getElementById("seeMoreBtn");
     const collectionsBar = document.getElementById("collectionsBar");
 
-    // Helper: Build secure stream URL through Cloudflare Worker using r2Key
+    // Helper: Get direct video URL (No worker manipulation)
     function getStreamUrl(video) {
-      const rawKey = (video.r2Key || video.videoUrl || "").trim();
-      const fileName = rawKey.split("/").pop().replace(/^\/+/, "");
-      const base = WORKER_STREAM_URL.replace(/\/+$/, "");
-      return `${base}/${encodeURIComponent(fileName)}`;
+      return (video.videoUrl || video.r2Key || "").trim();
     }
 
     // 3. Build Collection Filter Pills from existing videos' collection values
