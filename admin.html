@@ -34,11 +34,7 @@
       --danger: #dc2626;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
@@ -49,262 +45,64 @@
       transition: background 0.2s ease, color 0.2s ease;
     }
 
-    h1, h2, h3, .brand {
-      font-family: 'Space Grotesk', sans-serif;
-    }
+    h1, h2, h3, .brand { font-family: 'Space Grotesk', sans-serif; }
 
     .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 24px;
-      border-bottom: 1px solid var(--border);
-      background: var(--surface);
-      position: sticky;
-      top: 0;
-      z-index: 20;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 24px; border-bottom: 1px solid var(--border);
+      background: var(--surface); position: sticky; top: 0; z-index: 20;
     }
 
-    .brand {
-      font-size: 1.25rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+    .brand { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; }
+    .brand span.badge { font-size: 0.72rem; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: rgba(225, 29, 72, 0.16); color: var(--accent); font-weight: 600; }
+    .actions-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .container { max-width: 1120px; margin: 28px auto; padding: 0 20px 60px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; margin-bottom: 22px; }
+    .auth-box { max-width: 420px; margin: 60px auto; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    @media (max-width: 720px) { .grid-2 { grid-template-columns: 1fr; } }
 
-    .brand span.badge {
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      padding: 3px 8px;
-      border-radius: 999px;
-      background: rgba(225, 29, 72, 0.16);
-      color: var(--accent);
-      font-weight: 600;
-    }
-
-    .actions-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .container {
-      max-width: 1120px;
-      margin: 28px auto;
-      padding: 0 20px 60px;
-    }
-
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 22px;
-      margin-bottom: 22px;
-    }
-
-    .auth-box {
-      max-width: 420px;
-      margin: 60px auto;
-    }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
-    }
-
-    @media (max-width: 720px) {
-      .grid-2 {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .field {
-      margin-bottom: 14px;
-    }
-
-    label {
-      display: block;
-      font-size: 0.85rem;
-      font-weight: 600;
-      margin-bottom: 6px;
-      color: var(--text);
-    }
-
-    .hint {
-      font-size: 0.78rem;
-      color: var(--muted);
-      margin-top: 4px;
-    }
+    .field { margin-bottom: 14px; }
+    label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+    .hint { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
 
     input, select, textarea {
-      width: 100%;
-      padding: 10px 12px;
-      border-radius: 9px;
-      border: 1px solid var(--border);
-      background: var(--surface-2);
-      color: var(--text);
-      font-family: inherit;
-      font-size: 0.92rem;
+      width: 100%; padding: 10px 12px; border-radius: 9px; border: 1px solid var(--border);
+      background: var(--surface-2); color: var(--text); font-family: inherit; font-size: 0.92rem;
     }
-
-    textarea {
-      min-height: 84px;
-      resize: vertical;
-    }
+    textarea { min-height: 84px; resize: vertical; }
 
     button {
-      font-family: inherit;
-      font-weight: 600;
-      font-size: 0.9rem;
-      padding: 10px 16px;
-      border-radius: 9px;
-      border: 1px solid transparent;
-      cursor: pointer;
-      transition: 0.15s ease;
+      font-family: inherit; font-weight: 600; font-size: 0.9rem; padding: 10px 16px;
+      border-radius: 9px; border: 1px solid transparent; cursor: pointer; transition: 0.15s ease;
     }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-secondary { background: var(--surface-2); color: var(--text); border-color: var(--border); }
+    .btn-secondary:hover { opacity: 0.9; }
+    .btn-danger { background: rgba(239, 68, 68, 0.14); color: var(--danger); border-color: rgba(239, 68, 68, 0.3); padding: 7px 12px; font-size: 0.82rem; }
+    .btn-edit { background: var(--surface-2); color: var(--text); border-color: var(--border); padding: 7px 12px; font-size: 0.82rem; }
 
-    .btn-primary {
-      background: var(--accent);
-      color: #fff;
-    }
-
-    .btn-primary:hover {
-      background: var(--accent-hover);
-    }
-
-    .btn-secondary {
-      background: var(--surface-2);
-      color: var(--text);
-      border-color: var(--border);
-    }
-
-    .btn-secondary:hover {
-      opacity: 0.9;
-    }
-
-    .btn-danger {
-      background: rgba(239, 68, 68, 0.14);
-      color: var(--danger);
-      border-color: rgba(239, 68, 68, 0.3);
-      padding: 7px 12px;
-      font-size: 0.82rem;
-    }
-
-    .btn-edit {
-      background: var(--surface-2);
-      color: var(--text);
-      border-color: var(--border);
-      padding: 7px 12px;
-      font-size: 0.82rem;
-    }
-
-    .status-msg {
-      margin-top: 12px;
-      font-size: 0.88rem;
-      min-height: 20px;
-    }
-
+    .status-msg { margin-top: 12px; font-size: 0.88rem; min-height: 20px; }
     .status-ok { color: var(--success); }
     .status-err { color: var(--danger); }
 
-    .video-list {
-      display: grid;
-      gap: 12px;
-      margin-top: 14px;
-    }
-
-    .video-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      padding: 14px 16px;
-      border-radius: 11px;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      flex-wrap: wrap;
-    }
-
-    .video-meta h4 {
-      font-size: 1rem;
-      margin-bottom: 3px;
-    }
-
-    .video-meta p {
-      font-size: 0.82rem;
-      color: var(--muted);
-    }
-
-    .pill {
-      display: inline-block;
-      font-size: 0.74rem;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--muted);
-      margin-right: 6px;
-    }
-
-    .hidden {
-      display: none !important;
-    }
+    .video-list { display: grid; gap: 12px; margin-top: 14px; }
+    .video-item { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 16px; border-radius: 11px; background: var(--surface-2); border: 1px solid var(--border); flex-wrap: wrap; }
+    .video-meta h4 { font-size: 1rem; margin-bottom: 3px; }
+    .video-meta p { font-size: 0.82rem; color: var(--muted); }
+    .pill { display: inline-block; font-size: 0.74rem; padding: 2px 8px; border-radius: 999px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); margin-right: 6px; }
+    .hidden { display: none !important; }
 
     /* Theater Modal Player (Anti-Download) */
-    .modal {
-      position: fixed;
-      inset: 0;
-      z-index: 999;
-      background: rgba(0, 0, 0, 0.88);
-      backdrop-filter: blur(12px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem;
-    }
-    .modal.open {
-      display: flex;
-    }
-    .modal-content {
-      width: 100%;
-      max-width: 960px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      overflow: hidden;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
-    }
-    .player-box {
-      position: relative;
-      background: #000;
-      aspect-ratio: 16 / 9;
-      user-select: none;
-    }
-    .player-box video {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-    .modal-info {
-      padding: 1.5rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 1rem;
-    }
-    .modal-info h2 {
-      font-size: 1.25rem;
-      margin: 0.25rem 0 0.5rem;
-    }
-    .modal-info p {
-      color: var(--muted);
-      font-size: 0.9rem;
-      line-height: 1.5;
-    }
+    .modal { position: fixed; inset: 0; z-index: 999; background: rgba(0, 0, 0, 0.88); backdrop-filter: blur(12px); display: none; align-items: center; justify-content: center; padding: 1.5rem; }
+    .modal.open { display: flex; }
+    .modal-content { width: 100%; max-width: 960px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85); }
+    .player-box { position: relative; background: #000; aspect-ratio: 16 / 9; user-select: none; }
+    .player-box video { width: 100%; height: 100%; display: block; }
+    .modal-info { padding: 1.5rem; display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+    .modal-info h2 { font-size: 1.25rem; margin: 0.25rem 0 0.5rem; }
+    .modal-info p { color: var(--muted); font-size: 0.9rem; line-height: 1.5; }
   </style>
 </head>
 <body oncontextmenu="return false;">
@@ -367,9 +165,9 @@
 
         <div class="grid-2">
           <div class="field">
-            <label for="r2Key">Cloudflare R2 Object Key / Filename *</label>
-            <input type="text" id="r2Key" placeholder="e.g., VID-20260922-WA0002.mp4" required />
-            <div class="hint">Exact object key in your private R2 bucket (streamed via your Cloudflare Worker).</div>
+            <label for="r2Key">Video URL / Direct Link *</label>
+            <input type="text" id="r2Key" placeholder="https://example.com/video.mp4" required />
+            <div class="hint">Direct URL to the video file. (Saved in DB as 'r2Key' for compatibility).</div>
           </div>
           <div class="field">
             <label for="posterUrl">Poster / Thumbnail URL</label>
@@ -460,8 +258,6 @@
       serverTimestamp
     } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
 
-    const WORKER_STREAM_URL = "https://asian.dunethjayasinghe9.workers.dev";
-
     const firebaseConfig = {
       apiKey: "AIzaSyAEdEpK8B4WGR0iYZL5GKR20Q5p1MCU2l4",
       authDomain: "asianhub-9f45c.firebaseapp.com",
@@ -501,12 +297,9 @@
     let allVideos = [];
     let unsubscribeVideos = null;
 
-    // Helper: Build secure stream URL through Cloudflare Worker
+    // Helper: Get direct video URL (No worker manipulation)
     function getStreamUrl(video) {
-      const rawKey = (video.r2Key || video.videoUrl || "").trim();
-      const fileName = rawKey.split("/").pop().replace(/^\/+/, "");
-      const base = WORKER_STREAM_URL.replace(/\/+$/, "");
-      return `${base}/${encodeURIComponent(fileName)}`;
+      return (video.videoUrl || video.r2Key || "").trim();
     }
 
     document.getElementById("loginForm").addEventListener("submit", async (e) => {
@@ -579,7 +372,7 @@
               <span class="pill">${escapeHtml(v.collection || "General")}</span>
               ${v.year ? `<span class="pill">${escapeHtml(String(v.year))}</span>` : ""}
               ${v.duration ? `<span class="pill">${escapeHtml(v.duration)}</span>` : ""}
-              <span>Key: <code>${escapeHtml(v.r2Key || "")}</code></span>
+              <span>URL: <code style="word-break:break-all;">${escapeHtml(v.r2Key || "")}</code></span>
             </p>
           </div>
           <div class="actions-row">
@@ -615,7 +408,7 @@
       const payload = {
         title: document.getElementById("title").value.trim(),
         collection: document.getElementById("collection").value.trim(),
-        r2Key: document.getElementById("r2Key").value.trim().replace(/^\/+/, ""),
+        r2Key: document.getElementById("r2Key").value.trim(),
         posterUrl: document.getElementById("posterUrl").value.trim(),
         year: Number(document.getElementById("year").value) || null,
         duration: document.getElementById("duration").value.trim(),
