@@ -83,8 +83,7 @@
       query,
       orderBy,
       limit,
-      startAfter,
-      where
+      startAfter
     } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -125,12 +124,12 @@
     const seeMoreBtn = document.getElementById("seeMoreBtn");
     const collectionsBar = document.getElementById("collectionsBar");
 
-    // Helper: Get direct video URL (No worker manipulation)
+    // Helper: Get direct video URL
     function getStreamUrl(video) {
       return (video.videoUrl || video.r2Key || "").trim();
     }
 
-    // 3. Build Collection Filter Pills from existing videos' collection values
+    // 3. Build Collection Filter Pills
     function refreshCollectionPills() {
       const names = [...new Set(loadedVideos.map(v => v.collection).filter(Boolean))];
       collectionsBar.innerHTML = `<button class="pill ${activeCollection === "ALL" ? "active" : ""}" data-collection="ALL">All Videos</button>`;
@@ -151,20 +150,18 @@
       resetAndLoadVideos();
     });
 
-    // 4. Fetch Videos with "See More" Cursor Pagination
+    // 4. Fetch Videos (Fixed to avoid Firestore composite index errors)
     async function fetchVideos(isNextPage = false) {
       seeMoreBtn.textContent = "Loading...";
       seeMoreBtn.disabled = true;
 
       try {
-        let constraints = [orderBy("createdAt", "desc"), limit(PAGE_SIZE)];
-        if (activeCollection !== "ALL") {
-          constraints = [
-            where("collection", "==", activeCollection),
-            orderBy("createdAt", "desc"),
-            limit(PAGE_SIZE)
-          ];
-        }
+        // Fetch a larger batch when filtering to avoid strict Firestore index requirements.
+        // This handles sorting and filtering smoothly on the client side.
+        const isFiltered = activeCollection !== "ALL";
+        const fetchLimit = isFiltered ? 100 : PAGE_SIZE;
+        
+        let constraints = [orderBy("createdAt", "desc"), limit(fetchLimit)];
         if (isNextPage && lastVisibleDoc) {
           constraints.push(startAfter(lastVisibleDoc));
         }
@@ -172,12 +169,24 @@
         const q = query(collection(db, "videos"), ...constraints);
         const snapshot = await getDocs(q);
 
-        if (!snapshot.empty) {
+        let fetchedDocs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+        // Client-side filtering (case-insensitive and trim-safe)
+        if (isFiltered) {
+          const targetCollection = activeCollection.trim().toLowerCase();
+          fetchedDocs = fetchedDocs.filter(v => (v.collection || "").trim().toLowerCase() === targetCollection);
+        }
+
+        if (fetchedDocs.length > 0) {
+          // Update cursor to the last document fetched from Firestore overall
           lastVisibleDoc = snapshot.docs[snapshot.docs.length - 1];
-          snapshot.forEach((doc) => {
-            const data = { id: doc.id, ...doc.data() };
-            loadedVideos.push(data);
-            renderVideoCard(data);
+          
+          fetchedDocs.forEach((data) => {
+            // Prevent duplicate rendering
+            if (!loadedVideos.some(v => v.id === data.id)) {
+              loadedVideos.push(data);
+              renderVideoCard(data);
+            }
           });
 
           refreshCollectionPills();
@@ -186,13 +195,19 @@
             setHero(loadedVideos[0]);
           }
         } else if (!isNextPage) {
-          videoGrid.innerHTML = `<p style="color: var(--text-secondary);">No videos published yet.</p>`;
+          videoGrid.innerHTML = `<p style="color: var(--text-secondary);">No videos published in this category yet.</p>`;
         }
 
-        seeMoreBtn.style.display = snapshot.size === PAGE_SIZE ? "inline-block" : "none";
+        // Show "See More" if we got a full batch from Firestore (meaning there might be more)
+        seeMoreBtn.style.display = snapshot.size === fetchLimit ? "inline-block" : "none";
+
       } catch (err) {
         console.error("Failed to load videos:", err);
-        videoGrid.innerHTML = `<p style="color: var(--text-secondary);">Could not load videos: ${escapeHtml(err.message)}</p>`;
+        let errorMsg = err.message || "Unknown error";
+        if (errorMsg.includes("index")) {
+          errorMsg = "Missing database index. Please check the browser console (F12) for a Firebase link to create it.";
+        }
+        videoGrid.innerHTML = `<p style="color: var(--danger);">Could not load videos: ${escapeHtml(errorMsg)}</p>`;
       } finally {
         seeMoreBtn.textContent = "See More Videos ↓";
         seeMoreBtn.disabled = false;
@@ -246,7 +261,6 @@
 
     function openPlayer(video) {
       theaterVideo.src = getStreamUrl(video);
-      // Enforce no-download attributes dynamically when source changes
       theaterVideo.setAttribute('controlsList', 'nodownload noplaybackrate');
       
       document.getElementById("modalCollection").textContent = video.collection || "General";
