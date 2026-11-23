@@ -47,10 +47,10 @@
     </div>
   </main>
 
-  <!-- Anti-Download Theater Modal -->
+  <!-- Professional Theater Modal with Watermark & PiP -->
   <div class="modal" id="playerModal">
     <div class="modal-content">
-      <div class="player-box" id="playerBox" oncontextmenu="return false;">
+      <div class="player-box" oncontextmenu="return false;">
         <video
           id="theaterVideo"
           controls
@@ -60,19 +60,27 @@
           ondragstart="return false;"
           onselectstart="return false;"
         ></video>
-        <!-- Watermark overlay (populated by JS) -->
-        <div class="watermark-overlay" id="watermarkOverlay"></div>
-        <!-- Screenshot shield (toggled by admin setting) -->
-        <div class="screenshot-shield" id="screenshotShield" style="display:none;"></div>
-        <!-- Custom PiP button -->
-        <button type="button" class="pip-btn" id="pipBtn" title="Picture-in-Picture">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="4" width="20" height="16" rx="2"/>
-            <rect x="12" y="12" width="8" height="6" rx="1" fill="currentColor"/>
-          </svg>
-          <span>PiP</span>
-        </button>
+        
+        <!-- Moving Watermark Overlay -->
+        <div class="watermark-overlay" id="watermarkOverlay">
+          <span class="watermark-text" id="watermarkText">asianx.site</span>
+        </div>
+        
+        <!-- Screenshot Protection Overlay (Invisible) -->
+        <div class="screenshot-protection" id="screenshotProtection"></div>
+        
+        <!-- Custom Player Controls -->
+        <div class="custom-controls" id="customControls">
+          <div class="controls-top">
+            <button class="control-btn" id="pipBtn" title="Picture-in-Picture">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 7h-8v6h8V7zm2-4H3c-1.1 0-2 .9-2 2v14c0 1.1.9 1.98 2 1.98h18c1.1 0 2-.88 2-1.98V5c0-1.1-.9-2-2-2zm0 16.01H3V4.98h18v14.03z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
       </div>
+      
       <div class="modal-info">
         <div>
           <span class="card-tag" id="modalCollection">Collection</span>
@@ -91,12 +99,12 @@
       getFirestore,
       collection,
       getDocs,
-      getDoc,
-      doc,
       query,
       orderBy,
       limit,
-      startAfter
+      startAfter,
+      doc,
+      getDoc
     } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -113,50 +121,7 @@
     getAnalytics(app);
     const db = getFirestore(app);
 
-    // ============ SITE SETTINGS (Watermark + Screenshot Protection) ============
-    const DEFAULT_SETTINGS = {
-      watermarkText: "asianx.site",
-      screenshotProtection: true
-    };
-
-    async function loadSiteSettings() {
-      try {
-        const snap = await getDoc(doc(db, "settings", "general"));
-        if (snap.exists()) {
-          return { ...DEFAULT_SETTINGS, ...snap.data() };
-        }
-      } catch (err) {
-        console.warn("Could not load settings, using defaults:", err);
-      }
-      return DEFAULT_SETTINGS;
-    }
-
-    function applyWatermark(text) {
-      const overlay = document.getElementById("watermarkOverlay");
-      overlay.innerHTML = "";
-      const safeText = String(text || "asianx.site");
-      // Generate enough spans to fill the rotated overlay
-      for (let i = 0; i < 40; i++) {
-        const span = document.createElement("span");
-        span.textContent = safeText;
-        overlay.appendChild(span);
-      }
-    }
-
-    function applyScreenshotProtection(enabled) {
-      const shield = document.getElementById("screenshotShield");
-      shield.style.display = enabled ? "block" : "none";
-    }
-
-    // Load settings on page load
-    let siteSettings = DEFAULT_SETTINGS;
-    loadSiteSettings().then((settings) => {
-      siteSettings = settings;
-      applyWatermark(settings.watermarkText);
-      applyScreenshotProtection(settings.screenshotProtection);
-    });
-
-    // ============ THEME TOGGLE ============
+    // 1. Dark / Light Mode Logic
     const themeToggle = document.getElementById("themeToggle");
     const savedTheme = localStorage.getItem("asianhub_theme") || "dark";
     document.documentElement.setAttribute("data-theme", savedTheme);
@@ -170,20 +135,52 @@
       themeToggle.textContent = next === "dark" ? "☀️" : "🌙";
     });
 
-    // ============ STATE ============
+    // 2. State Variables
     const PAGE_SIZE = 8;
     let lastVisibleDoc = null;
     let activeCollection = "ALL";
     let loadedVideos = [];
+    let siteSettings = {
+      watermarkText: "asianx.site",
+      screenshotProtection: false
+    };
 
     const videoGrid = document.getElementById("videoGrid");
     const seeMoreBtn = document.getElementById("seeMoreBtn");
     const collectionsBar = document.getElementById("collectionsBar");
 
+    // Load site settings from Firestore
+    async function loadSiteSettings() {
+      try {
+        const settingsDoc = await getDoc(doc(db, "settings", "siteConfig"));
+        if (settingsDoc.exists()) {
+          siteSettings = settingsDoc.data();
+          applySiteSettings();
+        }
+      } catch (err) {
+        console.log("Using default settings");
+      }
+    }
+
+    function applySiteSettings() {
+      // Update watermark text
+      document.getElementById("watermarkText").textContent = siteSettings.watermarkText || "asianx.site";
+      
+      // Toggle screenshot protection
+      const protectionEl = document.getElementById("screenshotProtection");
+      if (siteSettings.screenshotProtection) {
+        protectionEl.classList.add("active");
+      } else {
+        protectionEl.classList.remove("active");
+      }
+    }
+
+    // Helper: Get direct video URL
     function getStreamUrl(video) {
       return (video.videoUrl || video.r2Key || "").trim();
     }
 
+    // 3. Build Collection Filter Pills
     function refreshCollectionPills() {
       const names = [...new Set(loadedVideos.map(v => v.collection).filter(Boolean))];
       collectionsBar.innerHTML = `<button class="pill ${activeCollection === "ALL" ? "active" : ""}" data-collection="ALL">All Videos</button>`;
@@ -204,6 +201,7 @@
       resetAndLoadVideos();
     });
 
+    // 4. Fetch Videos
     async function fetchVideos(isNextPage = false) {
       seeMoreBtn.textContent = "Loading...";
       seeMoreBtn.disabled = true;
@@ -211,36 +209,46 @@
       try {
         const isFiltered = activeCollection !== "ALL";
         const fetchLimit = isFiltered ? 100 : PAGE_SIZE;
+        
         let constraints = [orderBy("createdAt", "desc"), limit(fetchLimit)];
-        if (isNextPage && lastVisibleDoc) constraints.push(startAfter(lastVisibleDoc));
+        if (isNextPage && lastVisibleDoc) {
+          constraints.push(startAfter(lastVisibleDoc));
+        }
 
         const q = query(collection(db, "videos"), ...constraints);
         const snapshot = await getDocs(q);
-        let fetchedDocs = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+
+        let fetchedDocs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
         if (isFiltered) {
-          const target = activeCollection.trim().toLowerCase();
-          fetchedDocs = fetchedDocs.filter(v => (v.collection || "").trim().toLowerCase() === target);
+          const targetCollection = activeCollection.trim().toLowerCase();
+          fetchedDocs = fetchedDocs.filter(v => (v.collection || "").trim().toLowerCase() === targetCollection);
         }
 
         if (fetchedDocs.length > 0) {
           lastVisibleDoc = snapshot.docs[snapshot.docs.length - 1];
+          
           fetchedDocs.forEach((data) => {
             if (!loadedVideos.some(v => v.id === data.id)) {
               loadedVideos.push(data);
               renderVideoCard(data);
             }
           });
+
           refreshCollectionPills();
-          if (!isNextPage && loadedVideos.length > 0) setHero(loadedVideos[0]);
+
+          if (!isNextPage && loadedVideos.length > 0) {
+            setHero(loadedVideos[0]);
+          }
         } else if (!isNextPage) {
           videoGrid.innerHTML = `<p style="color: var(--text-secondary);">No videos published in this category yet.</p>`;
         }
 
         seeMoreBtn.style.display = snapshot.size === fetchLimit ? "inline-block" : "none";
+
       } catch (err) {
         console.error("Failed to load videos:", err);
-        videoGrid.innerHTML = `<p style="color: var(--text-secondary);">Could not load videos: ${escapeHtml(err.message)}</p>`;
+        videoGrid.innerHTML = `<p style="color: var(--text-secondary);">Could not load videos. Please try again.</p>`;
       } finally {
         seeMoreBtn.textContent = "See More Videos ↓";
         seeMoreBtn.disabled = false;
@@ -288,7 +296,7 @@
       videoGrid.appendChild(card);
     }
 
-    // ============ PLAYER MODAL ============
+    // 5. Professional Theater Player with Watermark & PiP
     const modal = document.getElementById("playerModal");
     const theaterVideo = document.getElementById("theaterVideo");
     const pipBtn = document.getElementById("pipBtn");
@@ -296,44 +304,48 @@
     function openPlayer(video) {
       theaterVideo.src = getStreamUrl(video);
       theaterVideo.setAttribute('controlsList', 'nodownload noplaybackrate');
+      
       document.getElementById("modalCollection").textContent = video.collection || "General";
       document.getElementById("modalTitle").textContent = video.title || "Untitled";
       document.getElementById("modalDesc").textContent = video.description || "";
       modal.classList.add("open");
-      // Re-apply current settings
-      applyWatermark(siteSettings.watermarkText);
-      applyScreenshotProtection(siteSettings.screenshotProtection);
-      theaterVideo.play().catch((err) => console.error("Playback error:", err));
+      
+      theaterVideo.play().catch((err) => {
+        console.error("Playback error:", err);
+      });
     }
 
     function closePlayer() {
-      // Exit PiP if active
-      if (document.pictureInPictureElement) {
-        document.exitPictureInPicture().catch(() => {});
-      }
       theaterVideo.pause();
       theaterVideo.removeAttribute("src");
       theaterVideo.load();
       modal.classList.remove("open");
     }
 
-    // PiP Toggle
+    // Picture-in-Picture functionality
     pipBtn.addEventListener("click", async () => {
       try {
         if (document.pictureInPictureElement) {
           await document.exitPictureInPicture();
-        } else if (document.pictureInPictureEnabled) {
+        } else if (theaterVideo.readyState >= 1) {
           await theaterVideo.requestPictureInPicture();
         }
       } catch (err) {
-        console.warn("PiP error:", err);
+        console.error("PiP error:", err);
       }
     });
 
-    document.getElementById("closeModalBtn").addEventListener("click", closePlayer);
-    modal.addEventListener("click", (e) => { if (e.target === modal) closePlayer(); });
+    // Hide PiP button if not supported
+    if (!document.pictureInPictureEnabled) {
+      pipBtn.style.display = "none";
+    }
 
-    // ============ SEARCH ============
+    document.getElementById("closeModalBtn").addEventListener("click", closePlayer);
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) closePlayer();
+    });
+
+    // 6. Live Search Filter
     document.getElementById("searchInput").addEventListener("input", (e) => {
       const term = e.target.value.toLowerCase();
       videoGrid.innerHTML = "";
@@ -347,29 +359,6 @@
 
     seeMoreBtn.addEventListener("click", () => fetchVideos(true));
 
-    // ============ SCREENSHOT PROTECTION (JS layer) ============
-    // Detect PrintScreen key and clear clipboard
-    document.addEventListener("keydown", (e) => {
-      if (!siteSettings.screenshotProtection) return;
-      if (e.key === "PrintScreen" || e.keyCode === 44) {
-        e.preventDefault();
-        // Attempt to clear clipboard
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText("").catch(() => {});
-        }
-      }
-    });
-
-    // Blur video when window loses focus (prevents some screen capture tools)
-    window.addEventListener("blur", () => {
-      if (siteSettings.screenshotProtection && modal.classList.contains("open")) {
-        theaterVideo.style.filter = "blur(20px) brightness(0.3)";
-      }
-    });
-    window.addEventListener("focus", () => {
-      theaterVideo.style.filter = "";
-    });
-
     function escapeHtml(str) {
       return String(str)
         .replace(/&/g, "&amp;")
@@ -378,6 +367,8 @@
         .replace(/"/g, "&quot;");
     }
 
+    // Initialize
+    loadSiteSettings();
     fetchVideos(false);
   </script>
 </body>
