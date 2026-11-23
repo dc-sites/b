@@ -47,40 +47,64 @@
     </div>
   </main>
 
-  <!-- Professional Theater Modal with Watermark & PiP -->
+  <!-- Professional Theater Modal -->
   <div class="modal" id="playerModal">
     <div class="modal-content">
-      <div class="player-box" oncontextmenu="return false;">
+      <div class="player-box" id="playerBox" oncontextmenu="return false;">
         <video
           id="theaterVideo"
-          controls
-          controlsList="nodownload noplaybackrate"
           playsinline
-          oncontextmenu="return false;"
-          ondragstart="return false;"
-          onselectstart="return false;"
+          preload="metadata"
         ></video>
-        
-        <!-- Moving Watermark Overlay -->
-        <div class="watermark-overlay" id="watermarkOverlay">
-          <span class="watermark-text" id="watermarkText">asianx.site</span>
-        </div>
-        
-        <!-- Screenshot Protection Overlay (Invisible) -->
-        <div class="screenshot-protection" id="screenshotProtection"></div>
-        
-        <!-- Custom Player Controls -->
+
+        <!-- Watermark Overlay -->
+        <div class="watermark" id="watermark">asianx.site</div>
+
+        <!-- Screenshot Protection Overlay -->
+        <div class="screenshot-guard" id="screenshotGuard"></div>
+
+        <!-- Custom Controls -->
         <div class="custom-controls" id="customControls">
-          <div class="controls-top">
-            <button class="control-btn" id="pipBtn" title="Picture-in-Picture">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M19 7h-8v6h8V7zm2-4H3c-1.1 0-2 .9-2 2v14c0 1.1.9 1.98 2 1.98h18c1.1 0 2-.88 2-1.98V5c0-1.1-.9-2-2-2zm0 16.01H3V4.98h18v14.03z"/>
-              </svg>
+          <div class="progress-container">
+            <div class="progress-bar" id="progressBar">
+              <div class="progress-buffered" id="progressBuffered"></div>
+              <div class="progress-filled" id="progressFilled"></div>
+              <div class="progress-thumb" id="progressThumb"></div>
+            </div>
+          </div>
+          <div class="controls-row">
+            <button class="ctrl-btn" id="playPauseBtn" title="Play/Pause (Space)">
+              <span class="icon-play">▶</span>
+              <span class="icon-pause" style="display:none;">❚❚</span>
+            </button>
+            <div class="volume-wrap">
+              <button class="ctrl-btn" id="muteBtn" title="Mute (M)">🔊</button>
+              <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="1" />
+            </div>
+            <div class="time-display">
+              <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
+            </div>
+            <div class="controls-spacer"></div>
+            <button class="ctrl-btn" id="pipBtn" title="Picture-in-Picture">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 11h-8v6h8v-6zm4 8V4.98C23 3.88 22.1 3 21 3H3c-1.1 0-2 .88-2 1.98V19c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2zm-2 .02H3V4.97h18v14.05z"/></svg>
+            </button>
+            <button class="ctrl-btn" id="fullscreenBtn" title="Fullscreen (F)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
             </button>
           </div>
         </div>
+
+        <!-- Center Play Button (shows when paused) -->
+        <div class="center-play" id="centerPlay">
+          <div class="center-play-circle">▶</div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div class="player-loader" id="playerLoader">
+          <div class="loader-ring"></div>
+        </div>
       </div>
-      
+
       <div class="modal-info">
         <div>
           <span class="card-tag" id="modalCollection">Collection</span>
@@ -96,15 +120,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-analytics.js";
     import {
-      getFirestore,
-      collection,
-      getDocs,
-      query,
-      orderBy,
-      limit,
-      startAfter,
-      doc,
-      getDoc
+      getFirestore, collection, getDocs, query, orderBy, limit, startAfter, where, doc, getDoc
     } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -121,7 +137,7 @@
     getAnalytics(app);
     const db = getFirestore(app);
 
-    // 1. Dark / Light Mode Logic
+    // ============ Theme Toggle ============
     const themeToggle = document.getElementById("themeToggle");
     const savedTheme = localStorage.getItem("asianhub_theme") || "dark";
     document.documentElement.setAttribute("data-theme", savedTheme);
@@ -135,52 +151,21 @@
       themeToggle.textContent = next === "dark" ? "☀️" : "🌙";
     });
 
-    // 2. State Variables
+    // ============ State Variables ============
     const PAGE_SIZE = 8;
     let lastVisibleDoc = null;
     let activeCollection = "ALL";
     let loadedVideos = [];
-    let siteSettings = {
-      watermarkText: "asianx.site",
-      screenshotProtection: false
-    };
 
     const videoGrid = document.getElementById("videoGrid");
     const seeMoreBtn = document.getElementById("seeMoreBtn");
     const collectionsBar = document.getElementById("collectionsBar");
 
-    // Load site settings from Firestore
-    async function loadSiteSettings() {
-      try {
-        const settingsDoc = await getDoc(doc(db, "settings", "siteConfig"));
-        if (settingsDoc.exists()) {
-          siteSettings = settingsDoc.data();
-          applySiteSettings();
-        }
-      } catch (err) {
-        console.log("Using default settings");
-      }
-    }
-
-    function applySiteSettings() {
-      // Update watermark text
-      document.getElementById("watermarkText").textContent = siteSettings.watermarkText || "asianx.site";
-      
-      // Toggle screenshot protection
-      const protectionEl = document.getElementById("screenshotProtection");
-      if (siteSettings.screenshotProtection) {
-        protectionEl.classList.add("active");
-      } else {
-        protectionEl.classList.remove("active");
-      }
-    }
-
-    // Helper: Get direct video URL
     function getStreamUrl(video) {
       return (video.videoUrl || video.r2Key || "").trim();
     }
 
-    // 3. Build Collection Filter Pills
+    // ============ Collection Pills ============
     function refreshCollectionPills() {
       const names = [...new Set(loadedVideos.map(v => v.collection).filter(Boolean))];
       collectionsBar.innerHTML = `<button class="pill ${activeCollection === "ALL" ? "active" : ""}" data-collection="ALL">All Videos</button>`;
@@ -201,7 +186,7 @@
       resetAndLoadVideos();
     });
 
-    // 4. Fetch Videos
+    // ============ Fetch Videos ============
     async function fetchVideos(isNextPage = false) {
       seeMoreBtn.textContent = "Loading...";
       seeMoreBtn.disabled = true;
@@ -209,46 +194,36 @@
       try {
         const isFiltered = activeCollection !== "ALL";
         const fetchLimit = isFiltered ? 100 : PAGE_SIZE;
-        
         let constraints = [orderBy("createdAt", "desc"), limit(fetchLimit)];
-        if (isNextPage && lastVisibleDoc) {
-          constraints.push(startAfter(lastVisibleDoc));
-        }
+        if (isNextPage && lastVisibleDoc) constraints.push(startAfter(lastVisibleDoc));
 
         const q = query(collection(db, "videos"), ...constraints);
         const snapshot = await getDocs(q);
-
-        let fetchedDocs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        let fetchedDocs = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
 
         if (isFiltered) {
-          const targetCollection = activeCollection.trim().toLowerCase();
-          fetchedDocs = fetchedDocs.filter(v => (v.collection || "").trim().toLowerCase() === targetCollection);
+          const target = activeCollection.trim().toLowerCase();
+          fetchedDocs = fetchedDocs.filter(v => (v.collection || "").trim().toLowerCase() === target);
         }
 
         if (fetchedDocs.length > 0) {
           lastVisibleDoc = snapshot.docs[snapshot.docs.length - 1];
-          
           fetchedDocs.forEach((data) => {
             if (!loadedVideos.some(v => v.id === data.id)) {
               loadedVideos.push(data);
               renderVideoCard(data);
             }
           });
-
           refreshCollectionPills();
-
-          if (!isNextPage && loadedVideos.length > 0) {
-            setHero(loadedVideos[0]);
-          }
+          if (!isNextPage && loadedVideos.length > 0) setHero(loadedVideos[0]);
         } else if (!isNextPage) {
           videoGrid.innerHTML = `<p style="color: var(--text-secondary);">No videos published in this category yet.</p>`;
         }
 
         seeMoreBtn.style.display = snapshot.size === fetchLimit ? "inline-block" : "none";
-
       } catch (err) {
         console.error("Failed to load videos:", err);
-        videoGrid.innerHTML = `<p style="color: var(--text-secondary);">Could not load videos. Please try again.</p>`;
+        videoGrid.innerHTML = `<p style="color: var(--text-secondary);">Could not load videos.</p>`;
       } finally {
         seeMoreBtn.textContent = "See More Videos ↓";
         seeMoreBtn.disabled = false;
@@ -296,23 +271,293 @@
       videoGrid.appendChild(card);
     }
 
-    // 5. Professional Theater Player with Watermark & PiP
+    // ============ Professional Player Logic ============
     const modal = document.getElementById("playerModal");
+    const playerBox = document.getElementById("playerBox");
     const theaterVideo = document.getElementById("theaterVideo");
+    const customControls = document.getElementById("customControls");
+    const playPauseBtn = document.getElementById("playPauseBtn");
+    const muteBtn = document.getElementById("muteBtn");
+    const volumeSlider = document.getElementById("volumeSlider");
+    const progressBar = document.getElementById("progressBar");
+    const progressFilled = document.getElementById("progressFilled");
+    const progressBuffered = document.getElementById("progressBuffered");
+    const progressThumb = document.getElementById("progressThumb");
+    const currentTimeEl = document.getElementById("currentTime");
+    const durationEl = document.getElementById("duration");
     const pipBtn = document.getElementById("pipBtn");
+    const fullscreenBtn = document.getElementById("fullscreenBtn");
+    const centerPlay = document.getElementById("centerPlay");
+    const playerLoader = document.getElementById("playerLoader");
+    const watermark = document.getElementById("watermark");
+    const screenshotGuard = document.getElementById("screenshotGuard");
 
+    let watermarkInterval = null;
+    let controlsTimeout = null;
+    let playerSettings = {
+      watermarkText: "asianx.site",
+      screenshotProtection: false
+    };
+
+    // Load player settings from Firestore
+    async function loadPlayerSettings() {
+      try {
+        const settingsDoc = await getDoc(doc(db, "settings", "playerSettings"));
+        if (settingsDoc.exists()) {
+          const data = settingsDoc.data();
+          playerSettings.watermarkText = data.watermarkText || "asianx.site";
+          playerSettings.screenshotProtection = !!data.screenshotProtection;
+        }
+      } catch (err) {
+        console.warn("Could not load player settings, using defaults.", err);
+      }
+      applyPlayerSettings();
+    }
+
+    function applyPlayerSettings() {
+      // Apply watermark text
+      watermark.textContent = playerSettings.watermarkText;
+      startWatermarkMovement();
+
+      // Apply screenshot protection
+      if (playerSettings.screenshotProtection) {
+        screenshotGuard.style.display = "block";
+        playerBox.classList.add("protected");
+      } else {
+        screenshotGuard.style.display = "none";
+        playerBox.classList.remove("protected");
+      }
+    }
+
+    // Watermark Movement
+    function startWatermarkMovement() {
+      if (watermarkInterval) clearInterval(watermarkInterval);
+
+      const positions = [
+        { top: '20px', left: '20px', transform: 'none' },
+        { top: '20px', right: '20px', left: 'auto', transform: 'none' },
+        { bottom: '90px', left: '20px', top: 'auto', transform: 'none' },
+        { bottom: '90px', right: '20px', top: 'auto', left: 'auto', transform: 'none' },
+        { top: '45%', left: '50%', transform: 'translate(-50%, -50%)' },
+        { top: '25%', left: '30%', transform: 'none' },
+        { top: '65%', right: '25%', left: 'auto', transform: 'none' },
+        { top: '35%', right: '35%', left: 'auto', transform: 'none' },
+      ];
+
+      let idx = 0;
+      const applyPos = () => {
+        const p = positions[idx];
+        watermark.style.top = p.top || 'auto';
+        watermark.style.bottom = p.bottom || 'auto';
+        watermark.style.left = p.left || 'auto';
+        watermark.style.right = p.right || 'auto';
+        watermark.style.transform = p.transform;
+        idx = (idx + 1) % positions.length;
+      };
+
+      applyPos();
+      watermarkInterval = setInterval(applyPos, 4500);
+    }
+
+    // Format time helper
+    function formatTime(sec) {
+      if (isNaN(sec)) return "0:00";
+      const h = Math.floor(sec / 3600);
+      const m = Math.floor((sec % 3600) / 60);
+      const s = Math.floor(sec % 60);
+      if (h > 0) return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+      return `${m}:${s.toString().padStart(2, '0')}`;
+    }
+
+    // Play/Pause
+    function togglePlay() {
+      if (theaterVideo.paused) theaterVideo.play();
+      else theaterVideo.pause();
+    }
+
+    playPauseBtn.addEventListener("click", togglePlay);
+    centerPlay.addEventListener("click", togglePlay);
+    theaterVideo.addEventListener("click", togglePlay);
+
+    theaterVideo.addEventListener("play", () => {
+      playPauseBtn.querySelector(".icon-play").style.display = "none";
+      playPauseBtn.querySelector(".icon-pause").style.display = "inline";
+      centerPlay.style.display = "none";
+    });
+
+    theaterVideo.addEventListener("pause", () => {
+      playPauseBtn.querySelector(".icon-play").style.display = "inline";
+      playPauseBtn.querySelector(".icon-pause").style.display = "none";
+      centerPlay.style.display = "flex";
+      showControls();
+    });
+
+    theaterVideo.addEventListener("waiting", () => playerLoader.style.display = "flex");
+    theaterVideo.addEventListener("canplay", () => playerLoader.style.display = "none");
+    theaterVideo.addEventListener("playing", () => playerLoader.style.display = "none");
+
+    // Time & Progress
+    theaterVideo.addEventListener("timeupdate", () => {
+      const pct = (theaterVideo.currentTime / theaterVideo.duration) * 100 || 0;
+      progressFilled.style.width = pct + "%";
+      progressThumb.style.left = pct + "%";
+      currentTimeEl.textContent = formatTime(theaterVideo.currentTime);
+    });
+
+    theaterVideo.addEventListener("loadedmetadata", () => {
+      durationEl.textContent = formatTime(theaterVideo.duration);
+    });
+
+    theaterVideo.addEventListener("progress", () => {
+      if (theaterVideo.buffered.length > 0) {
+        const buffered = theaterVideo.buffered.end(theaterVideo.buffered.length - 1);
+        const pct = (buffered / theaterVideo.duration) * 100 || 0;
+        progressBuffered.style.width = pct + "%";
+      }
+    });
+
+    progressBar.addEventListener("click", (e) => {
+      const rect = progressBar.getBoundingClientRect();
+      const pct = (e.clientX - rect.left) / rect.width;
+      theaterVideo.currentTime = pct * theaterVideo.duration;
+    });
+
+    // Volume
+    muteBtn.addEventListener("click", () => {
+      theaterVideo.muted = !theaterVideo.muted;
+      updateVolumeIcon();
+    });
+
+    volumeSlider.addEventListener("input", (e) => {
+      theaterVideo.volume = e.target.value;
+      theaterVideo.muted = e.target.value == 0;
+      updateVolumeIcon();
+    });
+
+    function updateVolumeIcon() {
+      if (theaterVideo.muted || theaterVideo.volume === 0) muteBtn.textContent = "🔇";
+      else if (theaterVideo.volume < 0.5) muteBtn.textContent = "🔉";
+      else muteBtn.textContent = "🔊";
+    }
+
+    // Picture-in-Picture
+    pipBtn.addEventListener("click", async () => {
+      try {
+        if (document.pictureInPictureElement) {
+          await document.exitPictureInPicture();
+        } else if (document.pictureInPictureEnabled) {
+          await theaterVideo.requestPictureInPicture();
+        }
+      } catch (err) {
+        console.warn("PiP not supported:", err);
+      }
+    });
+
+    // Fullscreen (makes the whole player-box fullscreen, so watermark stays visible)
+    fullscreenBtn.addEventListener("click", () => {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else {
+        playerBox.requestFullscreen().catch(err => console.warn(err));
+      }
+    });
+
+    document.addEventListener("fullscreenchange", () => {
+      const isFS = !!document.fullscreenElement;
+      fullscreenBtn.innerHTML = isFS
+        ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>`
+        : `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>`;
+    });
+
+    // Auto-hide controls
+    function showControls() {
+      customControls.style.opacity = "1";
+      customControls.style.pointerEvents = "auto";
+      clearTimeout(controlsTimeout);
+      if (!theaterVideo.paused) {
+        controlsTimeout = setTimeout(() => {
+          customControls.style.opacity = "0";
+          customControls.style.pointerEvents = "none";
+        }, 3000);
+      }
+    }
+
+    playerBox.addEventListener("mousemove", showControls);
+    playerBox.addEventListener("mouseleave", () => {
+      if (!theaterVideo.paused) {
+        controlsTimeout = setTimeout(() => {
+          customControls.style.opacity = "0";
+          customControls.style.pointerEvents = "none";
+        }, 1000);
+      }
+    });
+
+    // Keyboard Shortcuts
+    document.addEventListener("keydown", (e) => {
+      if (!modal.classList.contains("open")) return;
+      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+
+      switch (e.key.toLowerCase()) {
+        case " ":
+        case "k":
+          e.preventDefault();
+          togglePlay();
+          break;
+        case "arrowleft":
+          e.preventDefault();
+          theaterVideo.currentTime = Math.max(0, theaterVideo.currentTime - 10);
+          break;
+        case "arrowright":
+          e.preventDefault();
+          theaterVideo.currentTime = Math.min(theaterVideo.duration, theaterVideo.currentTime + 10);
+          break;
+        case "arrowup":
+          e.preventDefault();
+          theaterVideo.volume = Math.min(1, theaterVideo.volume + 0.1);
+          volumeSlider.value = theaterVideo.volume;
+          updateVolumeIcon();
+          break;
+        case "arrowdown":
+          e.preventDefault();
+          theaterVideo.volume = Math.max(0, theaterVideo.volume - 0.1);
+          volumeSlider.value = theaterVideo.volume;
+          updateVolumeIcon();
+          break;
+        case "m":
+          theaterVideo.muted = !theaterVideo.muted;
+          updateVolumeIcon();
+          break;
+        case "f":
+          fullscreenBtn.click();
+          break;
+        case "p":
+          pipBtn.click();
+          break;
+      }
+
+      // Screenshot protection - block PrintScreen
+      if (playerSettings.screenshotProtection && e.key === "PrintScreen") {
+        e.preventDefault();
+        navigator.clipboard.writeText("").catch(() => {});
+      }
+    });
+
+    // Double-click fullscreen
+    theaterVideo.addEventListener("dblclick", (e) => {
+      e.preventDefault();
+      fullscreenBtn.click();
+    });
+
+    // Open/Close Player
     function openPlayer(video) {
       theaterVideo.src = getStreamUrl(video);
       theaterVideo.setAttribute('controlsList', 'nodownload noplaybackrate');
-      
       document.getElementById("modalCollection").textContent = video.collection || "General";
       document.getElementById("modalTitle").textContent = video.title || "Untitled";
       document.getElementById("modalDesc").textContent = video.description || "";
       modal.classList.add("open");
-      
-      theaterVideo.play().catch((err) => {
-        console.error("Playback error:", err);
-      });
+      theaterVideo.play().catch(err => console.warn("Autoplay blocked:", err));
+      showControls();
     }
 
     function closePlayer() {
@@ -320,24 +565,12 @@
       theaterVideo.removeAttribute("src");
       theaterVideo.load();
       modal.classList.remove("open");
-    }
-
-    // Picture-in-Picture functionality
-    pipBtn.addEventListener("click", async () => {
-      try {
-        if (document.pictureInPictureElement) {
-          await document.exitPictureInPicture();
-        } else if (theaterVideo.readyState >= 1) {
-          await theaterVideo.requestPictureInPicture();
-        }
-      } catch (err) {
-        console.error("PiP error:", err);
+      if (document.pictureInPictureElement) {
+        document.exitPictureInPicture().catch(() => {});
       }
-    });
-
-    // Hide PiP button if not supported
-    if (!document.pictureInPictureEnabled) {
-      pipBtn.style.display = "none";
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      }
     }
 
     document.getElementById("closeModalBtn").addEventListener("click", closePlayer);
@@ -345,7 +578,7 @@
       if (e.target === modal) closePlayer();
     });
 
-    // 6. Live Search Filter
+    // Live Search
     document.getElementById("searchInput").addEventListener("input", (e) => {
       const term = e.target.value.toLowerCase();
       videoGrid.innerHTML = "";
@@ -361,14 +594,12 @@
 
     function escapeHtml(str) {
       return String(str)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
 
     // Initialize
-    loadSiteSettings();
+    loadPlayerSettings();
     fetchVideos(false);
   </script>
 </body>
