@@ -20,6 +20,7 @@
       --success: #10b981;
       --danger: #ef4444;
     }
+
     html[data-theme="light"] {
       --bg: #f6f7fb;
       --surface: #ffffff;
@@ -32,7 +33,9 @@
       --success: #059669;
       --danger: #dc2626;
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
       background: var(--bg);
@@ -41,12 +44,15 @@
       line-height: 1.5;
       transition: background 0.2s ease, color 0.2s ease;
     }
+
     h1, h2, h3, .brand { font-family: 'Space Grotesk', sans-serif; }
+
     .topbar {
       display: flex; align-items: center; justify-content: space-between;
       padding: 16px 24px; border-bottom: 1px solid var(--border);
       background: var(--surface); position: sticky; top: 0; z-index: 20;
     }
+
     .brand { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; }
     .brand span.badge { font-size: 0.72rem; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: rgba(225, 29, 72, 0.16); color: var(--accent); font-weight: 600; }
     .actions-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -59,11 +65,13 @@
     .field { margin-bottom: 14px; }
     label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text); }
     .hint { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
+
     input, select, textarea {
       width: 100%; padding: 10px 12px; border-radius: 9px; border: 1px solid var(--border);
       background: var(--surface-2); color: var(--text); font-family: inherit; font-size: 0.92rem;
     }
     textarea { min-height: 84px; resize: vertical; }
+
     button {
       font-family: inherit; font-weight: 600; font-size: 0.9rem; padding: 10px 16px;
       border-radius: 9px; border: 1px solid transparent; cursor: pointer; transition: 0.15s ease;
@@ -74,9 +82,11 @@
     .btn-secondary:hover { opacity: 0.9; }
     .btn-danger { background: rgba(239, 68, 68, 0.14); color: var(--danger); border-color: rgba(239, 68, 68, 0.3); padding: 7px 12px; font-size: 0.82rem; }
     .btn-edit { background: var(--surface-2); color: var(--text); border-color: var(--border); padding: 7px 12px; font-size: 0.82rem; }
+
     .status-msg { margin-top: 12px; font-size: 0.88rem; min-height: 20px; }
     .status-ok { color: var(--success); }
     .status-err { color: var(--danger); }
+
     .video-list { display: grid; gap: 12px; margin-top: 14px; }
     .video-item { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 16px; border-radius: 11px; background: var(--surface-2); border: 1px solid var(--border); flex-wrap: wrap; }
     .video-meta h4 { font-size: 1rem; margin-bottom: 3px; }
@@ -84,31 +94,42 @@
     .pill { display: inline-block; font-size: 0.74rem; padding: 2px 8px; border-radius: 999px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); margin-right: 6px; }
     .hidden { display: none !important; }
 
-    /* Toggle switch */
-    .toggle-switch { position: relative; display: inline-block; width: 52px; height: 28px; flex-shrink: 0; }
-    .toggle-switch input { opacity: 0; width: 0; height: 0; }
-    .toggle-slider {
-      position: absolute; cursor: pointer; inset: 0;
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 999px; transition: 0.3s;
+    /* Toggle Switch */
+    .toggle-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
-    .toggle-slider:before {
-      position: absolute; content: ""; height: 20px; width: 20px;
-      left: 3px; top: 3px; background: var(--muted);
-      border-radius: 50%; transition: 0.3s;
+    .toggle-switch {
+      position: relative;
+      width: 50px;
+      height: 26px;
+      background: var(--surface-2);
+      border-radius: 13px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: 0.3s;
     }
-    .toggle-switch input:checked + .toggle-slider { background: var(--accent); border-color: var(--accent); }
-    .toggle-switch input:checked + .toggle-slider:before { transform: translateX(24px); background: #fff; }
+    .toggle-switch.active {
+      background: var(--success);
+      border-color: var(--success);
+    }
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.3s;
+    }
+    .toggle-switch.active::after {
+      left: 26px;
+    }
 
-    .toggle-row {
-      display: flex; align-items: center; justify-content: space-between; gap: 16px;
-      padding: 14px 16px; background: var(--surface-2); border: 1px solid var(--border);
-      border-radius: 11px; margin-bottom: 12px;
-    }
-    .toggle-row .label-group h4 { font-size: 0.95rem; margin-bottom: 2px; }
-    .toggle-row .label-group p { font-size: 0.78rem; color: var(--muted); }
-
-    /* Preview Modal */
+    /* Theater Modal Player (Anti-Download) */
     .modal { position: fixed; inset: 0; z-index: 999; background: rgba(0, 0, 0, 0.88); backdrop-filter: blur(12px); display: none; align-items: center; justify-content: center; padding: 1.5rem; }
     .modal.open { display: flex; }
     .modal-content { width: 100%; max-width: 960px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85); }
@@ -117,35 +138,6 @@
     .modal-info { padding: 1.5rem; display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
     .modal-info h2 { font-size: 1.25rem; margin: 0.25rem 0 0.5rem; }
     .modal-info p { color: var(--muted); font-size: 0.9rem; line-height: 1.5; }
-
-    /* Watermark overlay (shared) */
-    .watermark-overlay {
-      position: absolute; inset: 0; z-index: 5; pointer-events: none;
-      overflow: hidden; display: flex; flex-wrap: wrap;
-      align-content: center; justify-content: center;
-      gap: 60px 80px; transform: rotate(-22deg) scale(1.5);
-      opacity: 0.18; user-select: none;
-    }
-    .watermark-overlay span {
-      color: #fff; font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.4rem; font-weight: 700; letter-spacing: 0.05em;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6); white-space: nowrap;
-    }
-    .screenshot-shield {
-      position: absolute; inset: 0; z-index: 8; pointer-events: none;
-      background: transparent; backdrop-filter: blur(0px);
-    }
-    .pip-btn {
-      position: absolute; bottom: 60px; right: 16px; z-index: 9;
-      background: rgba(0, 0, 0, 0.65); color: #fff;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      padding: 0.5rem 0.85rem; border-radius: 10px;
-      font-size: 0.8rem; font-weight: 600; cursor: pointer;
-      backdrop-filter: blur(10px); transition: all 0.2s;
-      display: flex; align-items: center; gap: 6px;
-    }
-    .pip-btn:hover { background: var(--accent); border-color: var(--accent); transform: translateY(-2px); }
-    .pip-btn svg { width: 16px; height: 16px; }
   </style>
 </head>
 <body oncontextmenu="return false;">
@@ -183,39 +175,34 @@
 
   <!-- Dashboard View -->
   <main id="dashboardSection" class="container hidden">
-
-    <!-- ============ NEW: SITE SETTINGS CARD ============ -->
+    <!-- Site Settings Card -->
     <div class="card">
-      <h2 style="margin-bottom: 6px;">⚙️ Site Settings</h2>
-      <p class="hint" style="margin-bottom: 18px;">Configure player protection and branding. Changes apply site-wide instantly.</p>
-
-      <div class="toggle-row">
-        <div class="label-group">
-          <h4>🛡️ Screenshot Protection</h4>
-          <p>Blurs video and blocks PrintScreen when the window loses focus.</p>
+      <h2 style="margin-bottom: 16px;">⚙️ Site Settings</h2>
+      <form id="settingsForm">
+        <div class="field">
+          <label for="watermarkText">Watermark Text</label>
+          <input type="text" id="watermarkText" placeholder="asianx.site" />
+          <div class="hint">This text will appear as a moving watermark on all videos</div>
         </div>
-        <label class="toggle-switch">
-          <input type="checkbox" id="screenshotToggle" />
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-
-      <div class="field" style="margin-top: 14px;">
-        <label for="watermarkInput">💧 Watermark Text</label>
-        <input type="text" id="watermarkInput" placeholder="e.g., asianx.site" />
-        <div class="hint">This text will appear as a diagonal repeating watermark on all videos.</div>
-      </div>
-
-      <div class="actions-row">
-        <button type="button" id="saveSettingsBtn" class="btn-primary">Save Settings</button>
-      </div>
-      <div id="settingsStatus" class="status-msg"></div>
+        
+        <div class="field">
+          <label>Screenshot Protection</label>
+          <div class="toggle-wrapper">
+            <div class="toggle-switch" id="screenshotToggle"></div>
+            <span class="hint" style="margin: 0;">Enable to prevent screenshots (experimental)</span>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn-primary">Save Settings</button>
+        <div id="settingsStatus" class="status-msg"></div>
+      </form>
     </div>
 
     <div class="card">
       <h2 id="formTitle" style="margin-bottom: 16px;">Add New Video</h2>
       <form id="videoForm">
         <input type="hidden" id="editingDocId" />
+
         <div class="grid-2">
           <div class="field">
             <label for="title">Title *</label>
@@ -233,6 +220,7 @@
             </datalist>
           </div>
         </div>
+
         <div class="grid-2">
           <div class="field">
             <label for="r2Key">Video URL / Direct Link *</label>
@@ -244,6 +232,7 @@
             <input type="url" id="posterUrl" placeholder="https://.../poster.jpg" />
           </div>
         </div>
+
         <div class="grid-2">
           <div class="field">
             <label for="year">Release Year</label>
@@ -254,10 +243,12 @@
             <input type="text" id="duration" placeholder="e.g., 1h 48m or 12:30" />
           </div>
         </div>
+
         <div class="field">
           <label for="description">Synopsis / Description</label>
           <textarea id="description" placeholder="Short summary of the movie or video..."></textarea>
         </div>
+
         <div class="actions-row">
           <button type="submit" id="saveVideoBtn" class="btn-primary">Save Video</button>
           <button type="button" id="cancelEditBtn" class="btn-secondary hidden">Cancel Edit</button>
@@ -277,10 +268,10 @@
     </div>
   </main>
 
-  <!-- Preview Modal -->
+  <!-- Anti-Download Preview Modal -->
   <div class="modal" id="playerModal">
     <div class="modal-content">
-      <div class="player-box" id="playerBox" oncontextmenu="return false;">
+      <div class="player-box" oncontextmenu="return false;">
         <video
           id="theaterVideo"
           controls
@@ -290,15 +281,6 @@
           ondragstart="return false;"
           onselectstart="return false;"
         ></video>
-        <div class="watermark-overlay" id="watermarkOverlay"></div>
-        <div class="screenshot-shield" id="screenshotShield" style="display:none;"></div>
-        <button type="button" class="pip-btn" id="pipBtn" title="Picture-in-Picture">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="4" width="20" height="16" rx="2"/>
-            <rect x="12" y="12" width="8" height="6" rx="1" fill="currentColor"/>
-          </svg>
-          <span>PiP</span>
-        </button>
       </div>
       <div class="modal-info">
         <div style="flex: 1;">
@@ -326,12 +308,11 @@
       addDoc,
       updateDoc,
       deleteDoc,
-      setDoc,
-      getDoc,
       doc,
       query,
       orderBy,
       onSnapshot,
+      setDoc,
       serverTimestamp
     } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
 
@@ -350,21 +331,18 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
     const videosCol = collection(db, "videos");
-    const settingsDoc = doc(db, "settings", "general");
 
-    const DEFAULT_SETTINGS = { watermarkText: "asianx.site", screenshotProtection: true };
-
-    // ============ THEME ============
+    // Theme toggle
     const htmlEl = document.documentElement;
     const savedTheme = localStorage.getItem("asianhub-theme") || "dark";
     htmlEl.setAttribute("data-theme", savedTheme);
+
     document.getElementById("themeToggle").addEventListener("click", () => {
       const next = htmlEl.getAttribute("data-theme") === "dark" ? "light" : "dark";
       htmlEl.setAttribute("data-theme", next);
       localStorage.setItem("asianhub-theme", next);
     });
 
-    // ============ DOM REFS ============
     const loginSection = document.getElementById("loginSection");
     const dashboardSection = document.getElementById("dashboardSection");
     const logoutBtn = document.getElementById("logoutBtn");
@@ -375,79 +353,22 @@
     const videoCountEl = document.getElementById("videoCount");
     const adminSearchEl = document.getElementById("adminSearch");
 
-    const watermarkInput = document.getElementById("watermarkInput");
-    const screenshotToggle = document.getElementById("screenshotToggle");
-    const saveSettingsBtn = document.getElementById("saveSettingsBtn");
-
     let allVideos = [];
     let unsubscribeVideos = null;
-    let currentSettings = { ...DEFAULT_SETTINGS };
+    let screenshotProtectionEnabled = false;
 
-    // ============ SETTINGS HELPERS ============
-    function applyWatermark(text) {
-      const overlay = document.getElementById("watermarkOverlay");
-      overlay.innerHTML = "";
-      const safeText = String(text || "asianx.site");
-      for (let i = 0; i < 40; i++) {
-        const span = document.createElement("span");
-        span.textContent = safeText;
-        overlay.appendChild(span);
-      }
+    // Helper: Get direct video URL
+    function getStreamUrl(video) {
+      return (video.videoUrl || video.r2Key || "").trim();
     }
 
-    function applyScreenshotProtection(enabled) {
-      const shield = document.getElementById("screenshotShield");
-      shield.style.display = enabled ? "block" : "none";
-    }
-
-    async function loadSettings() {
-      try {
-        const snap = await getDoc(settingsDoc);
-        if (snap.exists()) {
-          currentSettings = { ...DEFAULT_SETTINGS, ...snap.data() };
-        } else {
-          currentSettings = { ...DEFAULT_SETTINGS };
-        }
-      } catch (err) {
-        console.warn("Could not load settings:", err);
-        currentSettings = { ...DEFAULT_SETTINGS };
-      }
-      watermarkInput.value = currentSettings.watermarkText;
-      screenshotToggle.checked = currentSettings.screenshotProtection;
-      applyWatermark(currentSettings.watermarkText);
-      applyScreenshotProtection(currentSettings.screenshotProtection);
-    }
-
-    saveSettingsBtn.addEventListener("click", async () => {
-      settingsStatus.className = "status-msg";
-      settingsStatus.textContent = "Saving...";
-      const newWatermark = watermarkInput.value.trim() || "asianx.site";
-      const newProtection = screenshotToggle.checked;
-
-      try {
-        await setDoc(settingsDoc, {
-          watermarkText: newWatermark,
-          screenshotProtection: newProtection,
-          updatedAt: serverTimestamp()
-        }, { merge: true });
-        currentSettings = { watermarkText: newWatermark, screenshotProtection: newProtection };
-        applyWatermark(newWatermark);
-        applyScreenshotProtection(newProtection);
-        settingsStatus.className = "status-msg status-ok";
-        settingsStatus.textContent = "✓ Settings saved successfully!";
-      } catch (err) {
-        settingsStatus.className = "status-msg status-err";
-        settingsStatus.textContent = err.message || "Failed to save settings.";
-      }
-    });
-
-    // ============ AUTH ============
     document.getElementById("loginForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       loginStatus.className = "status-msg";
       loginStatus.textContent = "Signing in...";
       const email = document.getElementById("loginEmail").value.trim();
       const password = document.getElementById("loginPassword").value;
+
       try {
         await signInWithEmailAndPassword(auth, email, password);
         loginStatus.textContent = "";
@@ -457,7 +378,9 @@
       }
     });
 
-    logoutBtn.addEventListener("click", async () => { await signOut(auth); });
+    logoutBtn.addEventListener("click", async () => {
+      await signOut(auth);
+    });
 
     onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -465,12 +388,72 @@
         dashboardSection.classList.remove("hidden");
         logoutBtn.classList.remove("hidden");
         subscribeToVideos();
-        loadSettings();
+        loadSiteSettings();
       } else {
         dashboardSection.classList.add("hidden");
         logoutBtn.classList.add("hidden");
         loginSection.classList.remove("hidden");
-        if (unsubscribeVideos) { unsubscribeVideos(); unsubscribeVideos = null; }
+        if (unsubscribeVideos) {
+          unsubscribeVideos();
+          unsubscribeVideos = null;
+        }
+      }
+    });
+
+    // Load and apply site settings
+    async function loadSiteSettings() {
+      try {
+        const settingsDoc = doc(db, "settings", "siteConfig");
+        const settingsSnap = await import("https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js").then(m => m.getDoc(settingsDoc));
+        
+        if (settingsSnap.exists()) {
+          const data = settingsSnap.data();
+          document.getElementById("watermarkText").value = data.watermarkText || "asianx.site";
+          screenshotProtectionEnabled = data.screenshotProtection || false;
+          
+          const toggle = document.getElementById("screenshotToggle");
+          if (screenshotProtectionEnabled) {
+            toggle.classList.add("active");
+          } else {
+            toggle.classList.remove("active");
+          }
+        }
+      } catch (err) {
+        console.log("No settings found, using defaults");
+      }
+    }
+
+    // Settings form submission
+    document.getElementById("settingsForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      settingsStatus.className = "status-msg";
+      settingsStatus.textContent = "Saving...";
+
+      const watermarkText = document.getElementById("watermarkText").value.trim() || "asianx.site";
+      const screenshotProtection = screenshotProtectionEnabled;
+
+      try {
+        await setDoc(doc(db, "settings", "siteConfig"), {
+          watermarkText,
+          screenshotProtection,
+          updatedAt: serverTimestamp()
+        });
+        settingsStatus.className = "status-msg status-ok";
+        settingsStatus.textContent = "Settings saved successfully!";
+      } catch (err) {
+        settingsStatus.className = "status-msg status-err";
+        settingsStatus.textContent = err.message || "Failed to save settings.";
+      }
+    });
+
+    // Screenshot toggle
+    document.getElementById("screenshotToggle").addEventListener("click", () => {
+      screenshotProtectionEnabled = !screenshotProtectionEnabled;
+      const toggle = document.getElementById("screenshotToggle");
+      if (screenshotProtectionEnabled) {
+        toggle.classList.add("active");
+      } else {
+        toggle.classList.remove("active");
       }
     });
 
@@ -491,8 +474,13 @@
         (v.collection || "").toLowerCase().includes(term) ||
         (v.r2Key || "").toLowerCase().includes(term)
       );
+
       videoCountEl.textContent = filtered.length;
-      if (!filtered.length) { videoListEl.innerHTML = `<p class="hint">No videos found.</p>`; return; }
+
+      if (!filtered.length) {
+        videoListEl.innerHTML = `<p class="hint">No videos found.</p>`;
+        return;
+      }
 
       videoListEl.innerHTML = filtered.map((v) => `
         <div class="video-item">
@@ -527,12 +515,14 @@
       formTitleEl.textContent = "Add New Video";
       cancelEditBtn.classList.add("hidden");
     }
+
     cancelEditBtn.addEventListener("click", resetForm);
 
     videoForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       formStatus.className = "status-msg";
       formStatus.textContent = "Saving...";
+
       const payload = {
         title: document.getElementById("title").value.trim(),
         collection: document.getElementById("collection").value.trim(),
@@ -543,13 +533,17 @@
         description: document.getElementById("description").value.trim(),
         updatedAt: serverTimestamp()
       };
+
       try {
         if (editingDocIdEl.value) {
           await updateDoc(doc(db, "videos", editingDocIdEl.value), payload);
           formStatus.className = "status-msg status-ok";
           formStatus.textContent = "Video updated!";
         } else {
-          await addDoc(videosCol, { ...payload, createdAt: serverTimestamp() });
+          await addDoc(videosCol, {
+            ...payload,
+            createdAt: serverTimestamp()
+          });
           formStatus.className = "status-msg status-ok";
           formStatus.textContent = "Video added!";
         }
@@ -560,42 +554,35 @@
       }
     });
 
-    // ============ PREVIEW MODAL ============
+    // Preview Modal Controls
     const modal = document.getElementById("playerModal");
     const theaterVideo = document.getElementById("theaterVideo");
-    const pipBtn = document.getElementById("pipBtn");
-
-    function getStreamUrl(video) { return (video.videoUrl || video.r2Key || "").trim(); }
 
     function openPreview(video) {
-      theaterVideo.src = getStreamUrl(video);
+      const streamUrl = getStreamUrl(video);
+      theaterVideo.src = streamUrl;
       theaterVideo.setAttribute('controlsList', 'nodownload noplaybackrate');
+      
       document.getElementById("modalCollection").textContent = video.collection || "General";
       document.getElementById("modalTitle").textContent = video.title || "Untitled";
       document.getElementById("modalDesc").textContent = video.description || "No description.";
       modal.classList.add("open");
-      applyWatermark(currentSettings.watermarkText);
-      applyScreenshotProtection(currentSettings.screenshotProtection);
-      theaterVideo.play().catch((err) => console.error("Playback error:", err));
+      theaterVideo.play().catch((err) => {
+        console.error("Playback error:", err);
+      });
     }
 
     function closePreview() {
-      if (document.pictureInPictureElement) document.exitPictureInPicture().catch(() => {});
       theaterVideo.pause();
       theaterVideo.removeAttribute("src");
       theaterVideo.load();
       modal.classList.remove("open");
     }
 
-    pipBtn.addEventListener("click", async () => {
-      try {
-        if (document.pictureInPictureElement) await document.exitPictureInPicture();
-        else if (document.pictureInPictureEnabled) await theaterVideo.requestPictureInPicture();
-      } catch (err) { console.warn("PiP error:", err); }
-    });
-
     document.getElementById("closeModalBtn").addEventListener("click", closePreview);
-    modal.addEventListener("click", (e) => { if (e.target === modal) closePreview(); });
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) closePreview();
+    });
 
     videoListEl.addEventListener("click", async (e) => {
       const previewId = e.target.getAttribute("data-preview");
@@ -606,6 +593,7 @@
         const item = allVideos.find((v) => v.id === previewId);
         if (item) openPreview(item);
       }
+
       if (editId) {
         const item = allVideos.find((v) => v.id === editId);
         if (!item) return;
@@ -621,8 +609,10 @@
         cancelEditBtn.classList.remove("hidden");
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
+
       if (deleteId) {
-        if (!confirm("Delete this video entry from Firestore?")) return;
+        const confirmed = confirm("Delete this video entry from Firestore?");
+        if (!confirmed) return;
         try {
           await deleteDoc(doc(db, "videos", deleteId));
           formStatus.className = "status-msg status-ok";
@@ -634,27 +624,12 @@
       }
     });
 
-    // Screenshot protection JS layer
-    document.addEventListener("keydown", (e) => {
-      if (!currentSettings.screenshotProtection) return;
-      if (e.key === "PrintScreen" || e.keyCode === 44) {
-        e.preventDefault();
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText("").catch(() => {});
-        }
-      }
-    });
-    window.addEventListener("blur", () => {
-      if (currentSettings.screenshotProtection && modal.classList.contains("open")) {
-        theaterVideo.style.filter = "blur(20px) brightness(0.3)";
-      }
-    });
-    window.addEventListener("focus", () => { theaterVideo.style.filter = ""; });
-
     function escapeHtml(str) {
       return String(str)
-        .replace(/&/g, "&amp;").replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
     }
   </script>
 </body>
