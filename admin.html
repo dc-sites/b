@@ -9,50 +9,21 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #0b0d12;
-      --surface: #131722;
-      --surface-2: #1a2030;
-      --text: #f3f5fa;
-      --muted: #98a2b3;
-      --border: rgba(255, 255, 255, 0.1);
-      --accent: #e11d48;
-      --accent-hover: #be123c;
-      --success: #10b981;
-      --danger: #ef4444;
+      --bg: #0b0d12; --surface: #131722; --surface-2: #1a2030;
+      --text: #f3f5fa; --muted: #98a2b3; --border: rgba(255, 255, 255, 0.1);
+      --accent: #e11d48; --accent-hover: #be123c;
+      --success: #10b981; --danger: #ef4444;
     }
-
     html[data-theme="light"] {
-      --bg: #f6f7fb;
-      --surface: #ffffff;
-      --surface-2: #eef1f7;
-      --text: #0f172a;
-      --muted: #475569;
-      --border: rgba(15, 23, 42, 0.12);
-      --accent: #e11d48;
-      --accent-hover: #be123c;
-      --success: #059669;
-      --danger: #dc2626;
+      --bg: #f6f7fb; --surface: #ffffff; --surface-2: #eef1f7;
+      --text: #0f172a; --muted: #475569; --border: rgba(15, 23, 42, 0.12);
+      --accent: #e11d48; --accent-hover: #be123c;
+      --success: #059669; --danger: #dc2626;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      line-height: 1.5;
-      transition: background 0.2s ease, color 0.2s ease;
-    }
-
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.5; transition: background 0.2s ease, color 0.2s ease; }
     h1, h2, h3, .brand { font-family: 'Space Grotesk', sans-serif; }
-
-    .topbar {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 16px 24px; border-bottom: 1px solid var(--border);
-      background: var(--surface); position: sticky; top: 0; z-index: 20;
-    }
-
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--surface); position: sticky; top: 0; z-index: 20; }
     .brand { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; }
     .brand span.badge { font-size: 0.72rem; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: rgba(225, 29, 72, 0.16); color: var(--accent); font-weight: 600; }
     .actions-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -61,32 +32,21 @@
     .auth-box { max-width: 420px; margin: 60px auto; }
     .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
     @media (max-width: 720px) { .grid-2 { grid-template-columns: 1fr; } }
-
     .field { margin-bottom: 14px; }
     label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text); }
     .hint { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
-
-    input, select, textarea {
-      width: 100%; padding: 10px 12px; border-radius: 9px; border: 1px solid var(--border);
-      background: var(--surface-2); color: var(--text); font-family: inherit; font-size: 0.92rem;
-    }
+    input, select, textarea { width: 100%; padding: 10px 12px; border-radius: 9px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-family: inherit; font-size: 0.92rem; }
     textarea { min-height: 84px; resize: vertical; }
-
-    button {
-      font-family: inherit; font-weight: 600; font-size: 0.9rem; padding: 10px 16px;
-      border-radius: 9px; border: 1px solid transparent; cursor: pointer; transition: 0.15s ease;
-    }
+    button { font-family: inherit; font-weight: 600; font-size: 0.9rem; padding: 10px 16px; border-radius: 9px; border: 1px solid transparent; cursor: pointer; transition: 0.15s ease; }
     .btn-primary { background: var(--accent); color: #fff; }
     .btn-primary:hover { background: var(--accent-hover); }
     .btn-secondary { background: var(--surface-2); color: var(--text); border-color: var(--border); }
     .btn-secondary:hover { opacity: 0.9; }
     .btn-danger { background: rgba(239, 68, 68, 0.14); color: var(--danger); border-color: rgba(239, 68, 68, 0.3); padding: 7px 12px; font-size: 0.82rem; }
     .btn-edit { background: var(--surface-2); color: var(--text); border-color: var(--border); padding: 7px 12px; font-size: 0.82rem; }
-
     .status-msg { margin-top: 12px; font-size: 0.88rem; min-height: 20px; }
     .status-ok { color: var(--success); }
     .status-err { color: var(--danger); }
-
     .video-list { display: grid; gap: 12px; margin-top: 14px; }
     .video-item { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 16px; border-radius: 11px; background: var(--surface-2); border: 1px solid var(--border); flex-wrap: wrap; }
     .video-meta h4 { font-size: 1rem; margin-bottom: 3px; }
@@ -95,41 +55,14 @@
     .hidden { display: none !important; }
 
     /* Toggle Switch */
-    .toggle-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .toggle-switch {
-      position: relative;
-      width: 50px;
-      height: 26px;
-      background: var(--surface-2);
-      border-radius: 13px;
-      border: 1px solid var(--border);
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    .toggle-switch.active {
-      background: var(--success);
-      border-color: var(--success);
-    }
-    .toggle-switch::after {
-      content: '';
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 20px;
-      height: 20px;
-      background: white;
-      border-radius: 50%;
-      transition: 0.3s;
-    }
-    .toggle-switch.active::after {
-      left: 26px;
-    }
+    .toggle-wrap { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
+    .toggle { position: relative; width: 48px; height: 26px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; cursor: pointer; transition: 0.2s; }
+    .toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: var(--muted); border-radius: 50%; transition: 0.2s; }
+    .toggle.active { background: var(--accent); border-color: var(--accent); }
+    .toggle.active::after { left: 24px; background: #fff; }
+    .toggle-label { font-size: 0.9rem; font-weight: 500; }
 
-    /* Theater Modal Player (Anti-Download) */
+    /* Theater Modal Player */
     .modal { position: fixed; inset: 0; z-index: 999; background: rgba(0, 0, 0, 0.88); backdrop-filter: blur(12px); display: none; align-items: center; justify-content: center; padding: 1.5rem; }
     .modal.open { display: flex; }
     .modal-content { width: 100%; max-width: 960px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85); }
@@ -138,6 +71,58 @@
     .modal-info { padding: 1.5rem; display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
     .modal-info h2 { font-size: 1.25rem; margin: 0.25rem 0 0.5rem; }
     .modal-info p { color: var(--muted); font-size: 0.9rem; line-height: 1.5; }
+
+    /* Watermark */
+    .watermark {
+      position: absolute; color: rgba(255, 255, 255, 0.45);
+      font-size: 1.3rem; font-weight: 700; font-family: 'Space Grotesk', sans-serif;
+      pointer-events: none; z-index: 15;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.7), 0 0 20px rgba(0,0,0,0.5);
+      transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+      user-select: none; letter-spacing: 0.02em;
+    }
+
+    /* Screenshot Guard */
+    .screenshot-guard {
+      position: absolute; inset: 0; pointer-events: none; z-index: 14;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.015) 2px, rgba(255,255,255,0.015) 4px);
+      display: none;
+    }
+
+    /* Custom Controls */
+    .custom-controls {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      padding: 12px 16px 14px;
+      background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+      color: #fff; z-index: 20;
+      transition: opacity 0.3s ease;
+    }
+    .progress-container { padding: 6px 0; cursor: pointer; }
+    .progress-bar { position: relative; height: 4px; background: rgba(255,255,255,0.25); border-radius: 2px; transition: height 0.15s; }
+    .progress-container:hover .progress-bar { height: 6px; }
+    .progress-buffered { position: absolute; top: 0; left: 0; height: 100%; background: rgba(255,255,255,0.35); border-radius: 2px; width: 0; }
+    .progress-filled { position: absolute; top: 0; left: 0; height: 100%; background: var(--accent); border-radius: 2px; width: 0; }
+    .progress-thumb { position: absolute; top: 50%; width: 14px; height: 14px; background: var(--accent); border-radius: 50%; transform: translate(-50%, -50%); opacity: 0; transition: opacity 0.15s; box-shadow: 0 0 8px rgba(225, 29, 72, 0.6); }
+    .progress-container:hover .progress-thumb { opacity: 1; }
+    .controls-row { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
+    .ctrl-btn { background: transparent; border: none; color: #fff; cursor: pointer; padding: 6px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: 0.15s; }
+    .ctrl-btn:hover { background: rgba(255,255,255,0.15); }
+    .volume-wrap { display: flex; align-items: center; gap: 6px; }
+    .volume-slider { width: 80px; height: 4px; -webkit-appearance: none; appearance: none; background: rgba(255,255,255,0.3); border-radius: 2px; outline: none; cursor: pointer; }
+    .volume-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; background: #fff; border-radius: 50%; cursor: pointer; }
+    .volume-slider::-moz-range-thumb { width: 12px; height: 12px; background: #fff; border-radius: 50%; cursor: pointer; border: none; }
+    .time-display { font-size: 0.82rem; color: rgba(255,255,255,0.85); font-variant-numeric: tabular-nums; }
+    .controls-spacer { flex: 1; }
+    .center-play { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; z-index: 18; pointer-events: none; }
+    .center-play-circle { width: 70px; height: 70px; border-radius: 50%; background: rgba(225, 29, 72, 0.9); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 8px 30px rgba(225, 29, 72, 0.5); backdrop-filter: blur(8px); }
+    .player-loader { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; z-index: 17; pointer-events: none; }
+    .loader-ring { width: 50px; height: 50px; border: 3px solid rgba(255,255,255,0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 640px) {
+      .volume-slider { width: 50px; }
+      .time-display { font-size: 0.75rem; }
+    }
   </style>
 </head>
 <body oncontextmenu="return false;">
@@ -175,34 +160,37 @@
 
   <!-- Dashboard View -->
   <main id="dashboardSection" class="container hidden">
-    <!-- Site Settings Card -->
+
+    <!-- Player Settings Card -->
     <div class="card">
-      <h2 style="margin-bottom: 16px;">⚙️ Site Settings</h2>
+      <h2 style="margin-bottom: 6px;">⚙️ Player Settings</h2>
+      <p class="hint" style="margin-bottom: 18px;">Configure watermark and screenshot protection for all video players.</p>
       <form id="settingsForm">
         <div class="field">
           <label for="watermarkText">Watermark Text</label>
-          <input type="text" id="watermarkText" placeholder="asianx.site" />
-          <div class="hint">This text will appear as a moving watermark on all videos</div>
+          <input type="text" id="watermarkText" placeholder="asianx.site" maxlength="40" />
+          <div class="hint">This text will float across all video players (including fullscreen).</div>
         </div>
-        
         <div class="field">
           <label>Screenshot Protection</label>
-          <div class="toggle-wrapper">
-            <div class="toggle-switch" id="screenshotToggle"></div>
-            <span class="hint" style="margin: 0;">Enable to prevent screenshots (experimental)</span>
+          <div class="toggle-wrap">
+            <div class="toggle" id="screenshotToggle"></div>
+            <span class="toggle-label" id="screenshotLabel">Disabled</span>
           </div>
+          <div class="hint">Adds visual interference to screenshots and blocks PrintScreen key.</div>
         </div>
-        
-        <button type="submit" class="btn-primary">Save Settings</button>
+        <div class="actions-row" style="margin-top: 16px;">
+          <button type="submit" class="btn-primary">Save Settings</button>
+        </div>
         <div id="settingsStatus" class="status-msg"></div>
       </form>
     </div>
 
+    <!-- Add/Edit Video Card -->
     <div class="card">
       <h2 id="formTitle" style="margin-bottom: 16px;">Add New Video</h2>
       <form id="videoForm">
         <input type="hidden" id="editingDocId" />
-
         <div class="grid-2">
           <div class="field">
             <label for="title">Title *</label>
@@ -212,15 +200,11 @@
             <label for="collection">Collection / Category *</label>
             <input type="text" id="collection" list="collectionSuggestions" placeholder="e.g., K-Drama, Action, Thriller" required />
             <datalist id="collectionSuggestions">
-              <option value="Featured"></option>
-              <option value="Action"></option>
-              <option value="Drama"></option>
-              <option value="Thriller"></option>
-              <option value="Shorts"></option>
+              <option value="Featured"></option><option value="Action"></option>
+              <option value="Drama"></option><option value="Thriller"></option><option value="Shorts"></option>
             </datalist>
           </div>
         </div>
-
         <div class="grid-2">
           <div class="field">
             <label for="r2Key">Video URL / Direct Link *</label>
@@ -232,7 +216,6 @@
             <input type="url" id="posterUrl" placeholder="https://.../poster.jpg" />
           </div>
         </div>
-
         <div class="grid-2">
           <div class="field">
             <label for="year">Release Year</label>
@@ -243,12 +226,10 @@
             <input type="text" id="duration" placeholder="e.g., 1h 48m or 12:30" />
           </div>
         </div>
-
         <div class="field">
           <label for="description">Synopsis / Description</label>
-          <textarea id="description" placeholder="Short summary of the movie or video..."></textarea>
+          <textarea id="description" placeholder="Short summary..."></textarea>
         </div>
-
         <div class="actions-row">
           <button type="submit" id="saveVideoBtn" class="btn-primary">Save Video</button>
           <button type="button" id="cancelEditBtn" class="btn-secondary hidden">Cancel Edit</button>
@@ -257,6 +238,7 @@
       </form>
     </div>
 
+    <!-- Video List Card -->
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
         <h2>Published Videos (<span id="videoCount">0</span>)</h2>
@@ -268,19 +250,32 @@
     </div>
   </main>
 
-  <!-- Anti-Download Preview Modal -->
+  <!-- Preview Modal -->
   <div class="modal" id="playerModal">
     <div class="modal-content">
-      <div class="player-box" oncontextmenu="return false;">
-        <video
-          id="theaterVideo"
-          controls
-          controlsList="nodownload noplaybackrate"
-          playsinline
-          oncontextmenu="return false;"
-          ondragstart="return false;"
-          onselectstart="return false;"
-        ></video>
+      <div class="player-box" id="previewPlayerBox" oncontextmenu="return false;">
+        <video id="theaterVideo" playsinline preload="metadata"></video>
+        <div class="watermark" id="watermark">asianx.site</div>
+        <div class="screenshot-guard" id="screenshotGuard"></div>
+        <!-- Mini custom controls for preview -->
+        <div class="custom-controls" id="customControls" style="opacity:1;">
+          <div class="progress-container">
+            <div class="progress-bar" id="progressBar">
+              <div class="progress-filled" id="progressFilled"></div>
+            </div>
+          </div>
+          <div class="controls-row">
+            <button class="ctrl-btn" id="playPauseBtn">▶</button>
+            <div class="time-display"><span id="currentTime">0:00</span> / <span id="duration">0:00</span></div>
+            <div class="controls-spacer"></div>
+            <button class="ctrl-btn" id="pipBtn" title="PiP">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 11h-8v6h8v-6zm4 8V4.98C23 3.88 22.1 3 21 3H3c-1.1 0-2 .88-2 1.98V19c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2zm-2 .02H3V4.97h18v14.05z"/></svg>
+            </button>
+            <button class="ctrl-btn" id="fullscreenBtn" title="Fullscreen">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+            </button>
+          </div>
+        </div>
       </div>
       <div class="modal-info">
         <div style="flex: 1;">
@@ -296,25 +291,8 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-analytics.js";
-    import {
-      getAuth,
-      signInWithEmailAndPassword,
-      signOut,
-      onAuthStateChanged
-    } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
-    import {
-      getFirestore,
-      collection,
-      addDoc,
-      updateDoc,
-      deleteDoc,
-      doc,
-      query,
-      orderBy,
-      onSnapshot,
-      setDoc,
-      serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, query, orderBy, onSnapshot, serverTimestamp, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAEdEpK8B4WGR0iYZL5GKR20Q5p1MCU2l4",
@@ -331,12 +309,12 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
     const videosCol = collection(db, "videos");
+    const settingsDocRef = doc(db, "settings", "playerSettings");
 
-    // Theme toggle
+    // Theme
     const htmlEl = document.documentElement;
     const savedTheme = localStorage.getItem("asianhub-theme") || "dark";
     htmlEl.setAttribute("data-theme", savedTheme);
-
     document.getElementById("themeToggle").addEventListener("click", () => {
       const next = htmlEl.getAttribute("data-theme") === "dark" ? "light" : "dark";
       htmlEl.setAttribute("data-theme", next);
@@ -348,29 +326,25 @@
     const logoutBtn = document.getElementById("logoutBtn");
     const loginStatus = document.getElementById("loginStatus");
     const formStatus = document.getElementById("formStatus");
-    const settingsStatus = document.getElementById("settingsStatus");
     const videoListEl = document.getElementById("videoList");
     const videoCountEl = document.getElementById("videoCount");
     const adminSearchEl = document.getElementById("adminSearch");
+    const settingsStatus = document.getElementById("settingsStatus");
 
     let allVideos = [];
     let unsubscribeVideos = null;
-    let screenshotProtectionEnabled = false;
 
-    // Helper: Get direct video URL
     function getStreamUrl(video) {
       return (video.videoUrl || video.r2Key || "").trim();
     }
 
+    // ============ Auth ============
     document.getElementById("loginForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       loginStatus.className = "status-msg";
       loginStatus.textContent = "Signing in...";
-      const email = document.getElementById("loginEmail").value.trim();
-      const password = document.getElementById("loginPassword").value;
-
       try {
-        await signInWithEmailAndPassword(auth, email, password);
+        await signInWithEmailAndPassword(auth, document.getElementById("loginEmail").value.trim(), document.getElementById("loginPassword").value);
         loginStatus.textContent = "";
       } catch (err) {
         loginStatus.className = "status-msg status-err";
@@ -378,9 +352,7 @@
       }
     });
 
-    logoutBtn.addEventListener("click", async () => {
-      await signOut(auth);
-    });
+    logoutBtn.addEventListener("click", async () => await signOut(auth));
 
     onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -388,82 +360,72 @@
         dashboardSection.classList.remove("hidden");
         logoutBtn.classList.remove("hidden");
         subscribeToVideos();
-        loadSiteSettings();
+        loadSettings();
       } else {
         dashboardSection.classList.add("hidden");
         logoutBtn.classList.add("hidden");
         loginSection.classList.remove("hidden");
-        if (unsubscribeVideos) {
-          unsubscribeVideos();
-          unsubscribeVideos = null;
-        }
+        if (unsubscribeVideos) { unsubscribeVideos(); unsubscribeVideos = null; }
       }
     });
 
-    // Load and apply site settings
-    async function loadSiteSettings() {
+    // ============ Player Settings ============
+    const watermarkTextInput = document.getElementById("watermarkText");
+    const screenshotToggle = document.getElementById("screenshotToggle");
+    const screenshotLabel = document.getElementById("screenshotLabel");
+    let screenshotEnabled = false;
+
+    screenshotToggle.addEventListener("click", () => {
+      screenshotEnabled = !screenshotEnabled;
+      screenshotToggle.classList.toggle("active", screenshotEnabled);
+      screenshotLabel.textContent = screenshotEnabled ? "Enabled" : "Disabled";
+    });
+
+    async function loadSettings() {
       try {
-        const settingsDoc = doc(db, "settings", "siteConfig");
-        const settingsSnap = await import("https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js").then(m => m.getDoc(settingsDoc));
-        
-        if (settingsSnap.exists()) {
-          const data = settingsSnap.data();
-          document.getElementById("watermarkText").value = data.watermarkText || "asianx.site";
-          screenshotProtectionEnabled = data.screenshotProtection || false;
-          
-          const toggle = document.getElementById("screenshotToggle");
-          if (screenshotProtectionEnabled) {
-            toggle.classList.add("active");
-          } else {
-            toggle.classList.remove("active");
-          }
+        const snap = await getDoc(settingsDocRef);
+        if (snap.exists()) {
+          const data = snap.data();
+          watermarkTextInput.value = data.watermarkText || "asianx.site";
+          screenshotEnabled = !!data.screenshotProtection;
+          screenshotToggle.classList.toggle("active", screenshotEnabled);
+          screenshotLabel.textContent = screenshotEnabled ? "Enabled" : "Disabled";
+        } else {
+          watermarkTextInput.value = "asianx.site";
         }
       } catch (err) {
-        console.log("No settings found, using defaults");
+        console.warn("Could not load settings", err);
+        watermarkTextInput.value = "asianx.site";
       }
     }
 
-    // Settings form submission
     document.getElementById("settingsForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       settingsStatus.className = "status-msg";
       settingsStatus.textContent = "Saving...";
-
-      const watermarkText = document.getElementById("watermarkText").value.trim() || "asianx.site";
-      const screenshotProtection = screenshotProtectionEnabled;
-
       try {
-        await setDoc(doc(db, "settings", "siteConfig"), {
-          watermarkText,
-          screenshotProtection,
+        await setDoc(settingsDocRef, {
+          watermarkText: watermarkTextInput.value.trim() || "asianx.site",
+          screenshotProtection: screenshotEnabled,
           updatedAt: serverTimestamp()
-        });
+        }, { merge: true });
         settingsStatus.className = "status-msg status-ok";
-        settingsStatus.textContent = "Settings saved successfully!";
+        settingsStatus.textContent = "✓ Settings saved! Changes apply to all players immediately.";
+        applyPreviewSettings();
       } catch (err) {
         settingsStatus.className = "status-msg status-err";
-        settingsStatus.textContent = err.message || "Failed to save settings.";
+        settingsStatus.textContent = err.message || "Failed to save.";
       }
     });
 
-    // Screenshot toggle
-    document.getElementById("screenshotToggle").addEventListener("click", () => {
-      screenshotProtectionEnabled = !screenshotProtectionEnabled;
-      const toggle = document.getElementById("screenshotToggle");
-      if (screenshotProtectionEnabled) {
-        toggle.classList.add("active");
-      } else {
-        toggle.classList.remove("active");
-      }
-    });
-
+    // ============ Video List ============
     function subscribeToVideos() {
       const q = query(videosCol, orderBy("createdAt", "desc"));
       unsubscribeVideos = onSnapshot(q, (snapshot) => {
         allVideos = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
         renderVideoList();
       }, (err) => {
-        videoListEl.innerHTML = `<p class="status-err">Error loading videos: ${err.message}</p>`;
+        videoListEl.innerHTML = `<p class="status-err">Error: ${err.message}</p>`;
       });
     }
 
@@ -471,16 +433,10 @@
       const term = adminSearchEl.value.trim().toLowerCase();
       const filtered = allVideos.filter((v) =>
         (v.title || "").toLowerCase().includes(term) ||
-        (v.collection || "").toLowerCase().includes(term) ||
-        (v.r2Key || "").toLowerCase().includes(term)
+        (v.collection || "").toLowerCase().includes(term)
       );
-
       videoCountEl.textContent = filtered.length;
-
-      if (!filtered.length) {
-        videoListEl.innerHTML = `<p class="hint">No videos found.</p>`;
-        return;
-      }
+      if (!filtered.length) { videoListEl.innerHTML = `<p class="hint">No videos found.</p>`; return; }
 
       videoListEl.innerHTML = filtered.map((v) => `
         <div class="video-item">
@@ -490,7 +446,6 @@
               <span class="pill">${escapeHtml(v.collection || "General")}</span>
               ${v.year ? `<span class="pill">${escapeHtml(String(v.year))}</span>` : ""}
               ${v.duration ? `<span class="pill">${escapeHtml(v.duration)}</span>` : ""}
-              <span>URL: <code style="word-break:break-all;">${escapeHtml(v.r2Key || "")}</code></span>
             </p>
           </div>
           <div class="actions-row">
@@ -522,7 +477,6 @@
       e.preventDefault();
       formStatus.className = "status-msg";
       formStatus.textContent = "Saving...";
-
       const payload = {
         title: document.getElementById("title").value.trim(),
         collection: document.getElementById("collection").value.trim(),
@@ -533,43 +487,120 @@
         description: document.getElementById("description").value.trim(),
         updatedAt: serverTimestamp()
       };
-
       try {
         if (editingDocIdEl.value) {
           await updateDoc(doc(db, "videos", editingDocIdEl.value), payload);
           formStatus.className = "status-msg status-ok";
           formStatus.textContent = "Video updated!";
         } else {
-          await addDoc(videosCol, {
-            ...payload,
-            createdAt: serverTimestamp()
-          });
+          await addDoc(videosCol, { ...payload, createdAt: serverTimestamp() });
           formStatus.className = "status-msg status-ok";
           formStatus.textContent = "Video added!";
         }
         resetForm();
       } catch (err) {
         formStatus.className = "status-msg status-err";
-        formStatus.textContent = err.message || "Failed to save video.";
+        formStatus.textContent = err.message || "Failed.";
       }
     });
 
-    // Preview Modal Controls
+    // ============ Preview Modal ============
     const modal = document.getElementById("playerModal");
+    const previewPlayerBox = document.getElementById("previewPlayerBox");
     const theaterVideo = document.getElementById("theaterVideo");
+    const watermark = document.getElementById("watermark");
+    const screenshotGuard = document.getElementById("screenshotGuard");
+    const playPauseBtn = document.getElementById("playPauseBtn");
+    const progressBar = document.getElementById("progressBar");
+    const progressFilled = document.getElementById("progressFilled");
+    const currentTimeEl = document.getElementById("currentTime");
+    const durationEl = document.getElementById("duration");
+    const pipBtn = document.getElementById("pipBtn");
+    const fullscreenBtn = document.getElementById("fullscreenBtn");
+
+    let watermarkInterval = null;
+
+    function applyPreviewSettings() {
+      watermark.textContent = watermarkTextInput.value.trim() || "asianx.site";
+      if (screenshotEnabled) {
+        screenshotGuard.style.display = "block";
+        previewPlayerBox.classList.add("protected");
+      } else {
+        screenshotGuard.style.display = "none";
+        previewPlayerBox.classList.remove("protected");
+      }
+      startWatermarkMovement();
+    }
+
+    function startWatermarkMovement() {
+      if (watermarkInterval) clearInterval(watermarkInterval);
+      const positions = [
+        { top: '20px', left: '20px', transform: 'none' },
+        { top: '20px', right: '20px', left: 'auto', transform: 'none' },
+        { bottom: '90px', left: '20px', top: 'auto', transform: 'none' },
+        { bottom: '90px', right: '20px', top: 'auto', left: 'auto', transform: 'none' },
+        { top: '45%', left: '50%', transform: 'translate(-50%, -50%)' },
+        { top: '25%', left: '30%', transform: 'none' },
+        { top: '65%', right: '25%', left: 'auto', transform: 'none' },
+      ];
+      let idx = 0;
+      const applyPos = () => {
+        const p = positions[idx];
+        watermark.style.top = p.top || 'auto';
+        watermark.style.bottom = p.bottom || 'auto';
+        watermark.style.left = p.left || 'auto';
+        watermark.style.right = p.right || 'auto';
+        watermark.style.transform = p.transform;
+        idx = (idx + 1) % positions.length;
+      };
+      applyPos();
+      watermarkInterval = setInterval(applyPos, 4500);
+    }
+
+    function formatTime(sec) {
+      if (isNaN(sec)) return "0:00";
+      const m = Math.floor(sec / 60), s = Math.floor(sec % 60);
+      return `${m}:${s.toString().padStart(2, '0')}`;
+    }
+
+    playPauseBtn.addEventListener("click", () => {
+      if (theaterVideo.paused) theaterVideo.play(); else theaterVideo.pause();
+    });
+
+    theaterVideo.addEventListener("play", () => playPauseBtn.textContent = "❚❚");
+    theaterVideo.addEventListener("pause", () => playPauseBtn.textContent = "▶");
+    theaterVideo.addEventListener("timeupdate", () => {
+      const pct = (theaterVideo.currentTime / theaterVideo.duration) * 100 || 0;
+      progressFilled.style.width = pct + "%";
+      currentTimeEl.textContent = formatTime(theaterVideo.currentTime);
+    });
+    theaterVideo.addEventListener("loadedmetadata", () => durationEl.textContent = formatTime(theaterVideo.duration));
+    progressBar.addEventListener("click", (e) => {
+      const rect = progressBar.getBoundingClientRect();
+      theaterVideo.currentTime = ((e.clientX - rect.left) / rect.width) * theaterVideo.duration;
+    });
+
+    pipBtn.addEventListener("click", async () => {
+      try {
+        if (document.pictureInPictureElement) await document.exitPictureInPicture();
+        else await theaterVideo.requestPictureInPicture();
+      } catch (err) { console.warn(err); }
+    });
+
+    fullscreenBtn.addEventListener("click", () => {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else previewPlayerBox.requestFullscreen().catch(err => console.warn(err));
+    });
 
     function openPreview(video) {
-      const streamUrl = getStreamUrl(video);
-      theaterVideo.src = streamUrl;
+      theaterVideo.src = getStreamUrl(video);
       theaterVideo.setAttribute('controlsList', 'nodownload noplaybackrate');
-      
       document.getElementById("modalCollection").textContent = video.collection || "General";
       document.getElementById("modalTitle").textContent = video.title || "Untitled";
       document.getElementById("modalDesc").textContent = video.description || "No description.";
       modal.classList.add("open");
-      theaterVideo.play().catch((err) => {
-        console.error("Playback error:", err);
-      });
+      applyPreviewSettings();
+      theaterVideo.play().catch(err => console.warn(err));
     }
 
     function closePreview() {
@@ -577,12 +608,12 @@
       theaterVideo.removeAttribute("src");
       theaterVideo.load();
       modal.classList.remove("open");
+      if (document.pictureInPictureElement) document.exitPictureInPicture().catch(() => {});
+      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
     }
 
     document.getElementById("closeModalBtn").addEventListener("click", closePreview);
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) closePreview();
-    });
+    modal.addEventListener("click", (e) => { if (e.target === modal) closePreview(); });
 
     videoListEl.addEventListener("click", async (e) => {
       const previewId = e.target.getAttribute("data-preview");
@@ -593,7 +624,6 @@
         const item = allVideos.find((v) => v.id === previewId);
         if (item) openPreview(item);
       }
-
       if (editId) {
         const item = allVideos.find((v) => v.id === editId);
         if (!item) return;
@@ -609,27 +639,21 @@
         cancelEditBtn.classList.remove("hidden");
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
-
       if (deleteId) {
-        const confirmed = confirm("Delete this video entry from Firestore?");
-        if (!confirmed) return;
+        if (!confirm("Delete this video?")) return;
         try {
           await deleteDoc(doc(db, "videos", deleteId));
           formStatus.className = "status-msg status-ok";
           formStatus.textContent = "Video deleted.";
         } catch (err) {
           formStatus.className = "status-msg status-err";
-          formStatus.textContent = err.message || "Delete failed.";
+          formStatus.textContent = err.message;
         }
       }
     });
 
     function escapeHtml(str) {
-      return String(str)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
+      return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
   </script>
 </body>
